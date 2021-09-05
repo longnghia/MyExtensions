@@ -1,0 +1,44 @@
+{
+   "background": {
+      "scripts": ["js/background.js"]
+   },
+   "options_ui":{
+      "page":"./html/option.html",
+      "open_in_tab":true
+   },
+   "browser_action": {
+      "default_icon": {
+         "128": "icon/icons8-postman-api-128.png"
+      },
+      "default_title": "Postman F CtrW"
+   },
+
+   "commands": {
+      "fakeCtrlW": {
+         "suggested_key": {
+            "default": "Ctrl+W",
+            "linux":"Ctrl+W"
+         },
+         "description": "Fake the Ctrl W event"
+      },
+      "testCommand":{
+         "suggested_key":{
+            "default":"Ctrl+M"
+         },
+         "description":"log st to background"
+      }
+   },
+   "permissions":["tabs","storage"],
+   "default_locale": "en",
+   "description": "Postman disable Ctrl W",
+   "icons": {
+
+      "128": "icon/icons8-postman-api-128-color.png"
+
+   },
+   "manifest_version": 2,
+   "name": "Postman F Ctr+W",
+   "version": "1.0.0",
+   "author": "ln"
+
+}

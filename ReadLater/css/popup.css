@@ -1,0 +1,99 @@
+#toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.art-link {
+    display: block;
+    align-items: center;
+    color: rgb(37, 37, 37)
+        /* justify-content: space-between; */
+}
+
+.art-link>img {
+    width: 15px;
+}
+
+ol {
+    padding-inline-start: 0 !important;
+}
+
+li {
+    margin:0 15px 15px 15px ;
+}
+
+li>div {
+    display: flex;
+    align-items: baseline;
+}
+
+
+li:hover {
+    background-color: antiquewhite;
+
+}
+
+#container-art {
+    margin-left: 10px;
+}
+
+.art-index {
+    width: 10px;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: 1px solid blueviolet;
+}
+
+.art-info {
+    width: 200px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.art-title {
+    font-size: 12px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+.art-host {
+    color: rgb(63, 63, 63);
+
+    font-size: 70%;
+}
+
+.art-link{
+    display: -webkit-inline-box;
+
+}
+.art-link:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
+.art-action {
+    right: 0;
+}
+
+#count-art {
+    color: blueviolet;
+    margin: 10px;
+}
+
+.glyphicon:hover {
+    cursor: pointer;
+    background-color: gray;
+}
+
+div.check-delete.not-show {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
+.not-show {
+    display: none;
+}

@@ -1,0 +1,37 @@
+{
+  "author": "longA",
+  "background": {
+    "scripts": ["js/background.js"]
+  },
+  "browser_action": {
+    "default_icon": "icons/48.png",
+    "default_popup": "pages/popup.html",
+    "default_title": "Điểm thi"
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "js": ["js/content.js"],
+      "matches": ["*://*.portal1.hcmus.edu.vn/SinhVien.aspx?pid=211*"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": ["/pages/*"],
+  "content_security_policy": "script-src 'self' https://code.highcharts.com; object-src 'self'",
+  "description": "Công cụ kiểm tra điểm thi",
+  "icons": {
+    "128": "icons/128.png",
+    "16": "icons/16.png",
+    "48": "icons/48.png"
+  },
+  "manifest_version": 2,
+  "name": "Điểm thi",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "https://*.hcmus.edu.vn/*"
+  ],
+  "short_name": "Điểm thi",
+  "update_url": "https://clients2.google.com/service/update2/crx",
+  "version": "1.0.0"
+}

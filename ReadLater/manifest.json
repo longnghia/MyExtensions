@@ -1,0 +1,24 @@
+{
+    "background": {
+       "scripts": [ "js/background.js" ]
+    },
+    "browser_action": {
+       "default_icon": {
+          "19": "icon/icons8-reading-19.png"
+       },
+       "default_popup": "html/popup.html",
+       "default_title": "Show articles"
+    },
+    "default_locale": "en",
+    "description": "procrastinate your reading process :)",
+    "icons": {
+   
+       "16": "icon/icons8-reading-16.png"
+
+    },
+    "manifest_version": 2,
+    "name": "Read Later!",
+    "permissions": [ "tabs", "storage" ],
+    "version": "1.0.0"
+ }
+ 
