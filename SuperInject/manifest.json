@@ -1,0 +1,27 @@
+{
+    "content_scripts": [{
+       "js":["./js/content.js"],
+       "matches":["*://*/*"],
+       "run_at":"document_start"
+    }],
+    "browser_action": {
+       "default_icon": {
+          "128": "./icon/icons8-syringe-100.png"
+       },
+       "default_popup": "html/popup.html",
+       "default_title": "Injector"
+    },
+    "options_page":"./html/option.html",
+    "default_locale": "en",
+    "description": "An extension to inject userscript and cdn",
+    "icons": {
+       "128": "./icon/icons8-syringe-100.png"
+    },
+    "manifest_version": 2,
+    "name": "Super Injector",
+    "short_name":"Injector",
+    "homepage_url":"http://github./com/LongNghia/MyExtensions/SuperInject",
+    "permissions": [  "tabs","storage" ,"*://*/*" ],
+    "version": "1.0.0"
+ }
+ 

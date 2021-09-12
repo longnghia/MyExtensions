@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options</title>
+
+    <script src=""></script>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <style>
+        #container {
+            margin: 10px;
+        }
+
+        .div-modify {
+            position: relative;
+            width: fit-content;
+            padding: 20px;
+            margin: 10px;
+            border: solid red 1px;
+        }
+
+        label {
+            width: 80px;
+        }
+
+        #btn-remove {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+
+        <h2>Modify Scripts</h2>
+        <div id="tool-bar">
+            <button id="btn-add">Add</button>
+            <label for="search">Search</label>
+            <input type="text" name="search" id="search">
+        </div>
+    </div>
+    <div>
+        <button id="btn-save">Save</button>
+    </div>
+    <script src="option.js"></script>
+</body>
+
+</html>

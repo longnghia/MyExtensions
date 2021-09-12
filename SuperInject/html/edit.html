@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options</title>
+
+    <script src=""></script>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <style>
+        #container {
+            margin: 10px;
+        }
+
+        .div-add {
+            position: relative;
+            width: fit-content;
+            padding: 20px;
+            margin: 10px;
+            border: solid red 1px;
+        }
+
+        label {
+            width: 80px;
+        }
+
+        #btn-remove {
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+
+        <h2>Modify Scripts</h2>
+        <div id="tool-bar">
+            <button id="btn-add">Add</button>
+            <label for="search">Search</label>
+            <input type="text" name="search" id="search">
+        </div>
+
+        <div class="div-add collapsible">
+            <button id="btn-remove">Remove</button><br>
+            <label for="input-name">Name</label><br>
+            <input type="text" name="input-name" id="input-name" size="30"><br>
+            <br>
+            <label for="cars">Required CDN:</label>
+            <ul id="div-cdns collapsible">
+                <li>
+                    <label for="jquery">jquery</label><input type="checkbox" name="jquery">
+                </li>
+                <li>
+                    <label for="bootstrap">bootstrap</label><input type="checkbox" name="bootstrap">
+                </li>
+                <li>
+                    <label for="axios">axios</label><input type="checkbox" name="axios">
+                </li>
+            </ul>
+            <label for="ta-script">Scripts</label><br>
+            <textarea name="ta-script" cols="40" rows="10"></textarea>
+            <br>
+            <button id="btn-save">Save</button>
+        </div>
+
+        <div id="div-add-cdn">
+            <br>
+            <label for="textarea-cdn">Modifiy CDNs</label><br>
+            <textarea name="textarea-cdn" cols="40" rows="3"></textarea>
+            <br>
+        </div>
+    </div>
+    <!-- <script src="option.js"></script> -->
+</body>
+
+</html>
