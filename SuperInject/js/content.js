@@ -14,7 +14,7 @@ let db = {
     cdns: {}
 }
 
-chrome.storage.sync.get(db, function (data) {
+chrome.storage.local.get(db, function (data) {
     console.log(data);
     db = data;
 })
@@ -98,7 +98,7 @@ function cdnExistes(src) {
 // injectScript(script)
 
 chrome.runtime.onMessage.addListener(function (message, messageSender, sendResponse) {
-    chrome.storage.sync.get(db, function (data) {
+    chrome.storage.local.get(db, function (data) {
 
         console.log("receive mesasge:", message);
         console.log("updating database...");

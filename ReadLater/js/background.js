@@ -31,7 +31,7 @@ var articleSample = {
     url: "url"
 }
 
-chrome.storage.sync.get(null, function (data) {
+chrome.storage.local.get(null, function (data) {
     if (data && data.articles) {
         console.log("inital database", data);
         db = data;
@@ -48,9 +48,11 @@ chrome.extension.onMessage.addListener(function (message, messageSender, sendRes
         let index = parseInt(message.index)
         // console.log(message.index);
         let deletedItem = db.articles.splice(index, 1)
-        chrome.storage.sync.set(db, function () {
-            console.log("removed :"+index,deletedItem[0].title);
-            sendResponse({removed:true})
+        chrome.storage.local.set(db, function () {
+            console.log("removed :" + index, deletedItem[0].title);
+            sendResponse({
+                removed: true
+            })
 
         })
     }
@@ -90,10 +92,10 @@ function saveArticles(tabs) {
     // console.log(Array.isArray(db.articles));
     if (tabs.length == 1) {
         let obj = getArticle(tabs[0])
-        if (obj) {
+        if (obj && !isUrlExist(obj.url)) {
 
             db.articles.splice(0, 0, obj) //push to head
-            chrome.storage.sync.set(db, function () {
+            chrome.storage.local.set(db, function () {
                 console.log("saved ", db)
             });
         }
@@ -101,20 +103,22 @@ function saveArticles(tabs) {
     if (tabs.length > 1) {
         tabs.forEach(tab => {
             let obj = getArticle(tab)
-            if (obj) {
-
+            if (obj && !isUrlExist(obj.url)) {
                 db.articles.splice(0, 0, obj)
-                chrome.storage.sync.set(db, function () {
-                    console.log("saved ", db)
-                });
             }
         })
+        chrome.storage.local.set(db, function () {
+            console.log("saved ", db)
+        });
     }
 }
 
 function getArticle(tab) {
     if (tab) {
-        if (tab.url.startsWith("chrome://")) {
+        if (!tab.url ||
+            tab.url.startsWith("chrome://") ||
+            tab.url.startsWith("https://workona.com")
+        ) {
             return null;
         }
         let obj = {
@@ -128,3 +132,42 @@ function getArticle(tab) {
     }
     return null;
 }
+
+function isUrlExist(url = "") {
+    if (Array.isArray(db.articles)) {
+        let length = db.articles.length
+        if (length < 1)
+            return false
+        for (let i = 0; i < length; i++) {
+            if (url == db.articles[i].url) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/*
+ Command stuffs 
+ */
+
+chrome.commands.onCommand.addListener((command) => {
+    if (command == "save-this-tab") {
+        queryTab(current = true, saveArticles)
+        chrome.browserAction.setIcon({
+            path: "../icon/icons8-reading-100-hotkey.png"
+        });
+        chrome.browserAction.setTitle({
+            title: "Added"
+        })
+
+        setTimeout(function(){
+            chrome.browserAction.setIcon({
+                path: "../icon/icons8-reading-100.png"
+            });
+            chrome.browserAction.setTitle({
+                title: "Show articles"
+            })
+        },5000)
+    }
+})

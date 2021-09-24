@@ -31,7 +31,7 @@ let db = {
     cdns: {}
 }
 
-chrome.storage.sync.get(db, function (data) {
+chrome.storage.local.get(db, function (data) {
     console.log(data);
     db = data;
 
@@ -102,7 +102,9 @@ chrome.storage.sync.get(db, function (data) {
                 })
             })
         })
-
+        /* 
+        editscript
+        */
         let btnEdit = document.createElement("BUTTON")
         btnEdit.className = "btn-edit-script"
         btnEdit.textContent = "Edit"
@@ -118,7 +120,25 @@ chrome.storage.sync.get(db, function (data) {
         })
         li.appendChild(btnEdit)
         ulScript.insertBefore(li, ulScript.childNodes[0])
+
     })
+    /* 
+    addscript
+    */
+    let btnAdd = document.createElement("BUTTON")
+    btnAdd.className = "btn-add-script"
+    btnAdd.textContent = "Add script +"
+    btnAdd.addEventListener("click", function (event) {
+        event.stopPropagation()
+        console.log("add clicked")
+        let url = chrome.extension.getURL("../html/option.html") + `#addscript`
+        // window.open(url)
+        chrome.tabs.create({
+            url
+        });
+
+    })
+    ulScript.appendChild(btnAdd)
 })
 /* 
 

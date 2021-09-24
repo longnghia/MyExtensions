@@ -21,7 +21,7 @@
     "name": "Super Injector",
     "short_name":"Injector",
     "homepage_url":"http://github./com/LongNghia/MyExtensions/SuperInject",
-    "permissions": [  "tabs","storage" ,"*://*/*" ],
+    "permissions": [  "tabs","storage" ,"unlimitedStorage", "*://*/*" ],
     "version": "1.0.0"
  }
  

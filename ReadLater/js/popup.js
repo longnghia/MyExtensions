@@ -1,16 +1,20 @@
+let searchTerm = null
+let countArt = document.getElementById("count-art")
+let ul = document.querySelector("ol");
+let isPopup = true;
+var db = null;
+
+
 document.getElementById("add-current").onclick = addCurrent
 document.getElementById("add-all").onclick = addAll
 document.getElementById("bulk-delete").onclick = showCheckBox
 document.getElementById("btnDelete").onclick = bulkDelete
+document.getElementById("save-all").onclick = saveAll
+document.getElementById("search").onkeyup = doSearch
 
 
-let countArt = document.getElementById("count-art")
-let ul = document.querySelector("ol");
-let isPopup = true;
 changeBrowserActionIcon()
-var db = null;
 updateContent();
-
 
 
 chrome.storage.onChanged.addListener(function (changes) {
@@ -23,13 +27,18 @@ chrome.storage.onChanged.addListener(function (changes) {
 
 function updateContent() {
 
-    chrome.storage.sync.get(null, function (data) {
+    chrome.storage.local.get(null, function (data) {
         if (data && data.articles) {
             ul.innerHTML = "" //reset
             console.log("update content get data,", data);
-            let count = data.articles.length
-            countArt.innerText = count + (count > 1 ? " article" : " articles")
             db = data;
+            if (searchTerm) {
+                db.articles = db.articles.filter(function (tab) {
+                    return tab.title.match(searchTerm) || tab.url.match(searchTerm)
+                })
+            }
+            let count = db.articles.length
+            countArt.innerText = count + (count > 1 ? " article" : " articles")
             if (db && db.articles) {
                 for (let i = 0; i < count; i++) {
                     let li = createListItem(db.articles[i], i);
@@ -69,7 +78,7 @@ function createListItem({
         <input type="checkbox" name="check-delete" class="checkbox-delete not-show" data-index=${index}>
     <div>
     <div>
-        <a class="art-link" href=${url} target="_blank">
+        <a class="art-link" href=${url} target="_blank" title="${title}">
             <img src="${icon}">
             <div class="art-info">
                 <div class="art-title">${title}</div>
@@ -145,11 +154,11 @@ function bulkDelete() {
     let checkboxDelete = document.getElementsByClassName("checkbox-delete")
     //let length = checkboxDelete.length
     //document.getElementById("btnDelete").innerText = length>1?`Delete ${length} items`:`Delete ${length} item`
-    let countDelete=0;
+    let countDelete = 0;
     Array.from(checkboxDelete).forEach(function (checkbox) {
         if (checkbox.checked) {
             // console.log(checkbox.getAttribute("data-index"));
-            remove(checkbox.getAttribute("data-index")-countDelete)
+            remove(checkbox.getAttribute("data-index") - countDelete)
             countDelete++
         }
     })
@@ -157,12 +166,15 @@ function bulkDelete() {
 
 
 function addToList(tabs = []) {
-    console.log("receieve:", tabs)
+    console.log("receive:", tabs)
     let i = 0;
     tabs.forEach(tab => {
-        let li = createListItem(tab, i);
-        ul.insertBefore(li, ul.childNodes[0])
-        i++;
+        if (tab) {
+
+            let li = createListItem(tab, i);
+            ul.insertBefore(li, ul.childNodes[0])
+            i++;
+        }
     })
 }
 
@@ -177,7 +189,7 @@ function changeBrowserActionIcon() {
     } else {
 
         chrome.browserAction.setIcon({
-            path: "../icon/icons8-reading-19.png"
+            path: "../icon/icons8-reading100.png"
         });
         chrome.browserAction.setTitle({
             title: "Show articles"
@@ -185,4 +197,55 @@ function changeBrowserActionIcon() {
 
     }
     isPopup = false;
+}
+
+function saveAll() {
+    chrome.storage.local.get(null, function (data) {
+        if (data && data.articles) {
+            let length = data.articles.length
+            let arrUrls = ""
+            fetch(chrome.extension.getURL("../css/popup.css")).then(data => data.text()).then(text => {
+                arrUrls += `<style>${text}</style><ul>`
+                for (let i = 0; i < length; i++) {
+                    let url = data.articles[i]
+
+                    if (url) {
+                        let li = createListItem(url)
+                        arrUrls += li.outerHTML
+                    }
+                }
+                arrUrls += '</ul>'
+                let name = "ReadLater_" + new Date().toDateString().replaceAll(' ', '_') + ".html"
+                download(arrUrls, name, "text/html");
+            })
+
+        }
+    })
+}
+
+function download(data, filename, type) {
+    var file = new Blob([data], {
+        type: type
+    });
+    if (window.navigator.msSaveOrOpenBlob)
+        // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else {
+        // Others
+        var a = document.createElement("a"),
+            url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
+    }
+}
+
+function doSearch(event) {
+    searchTerm = event.target.value ?  RegExp(event.target.value,'i') :  null
+    updateContent()
 }

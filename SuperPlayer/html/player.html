@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superplayer</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script>
+
+    </script>
+
+</head>
+
+<body>
+
+    <video src="https://www.w3schools.com/html/mov_bbb.mp4" controls></video>
+
+    <div class="slider slider-speed">
+        <p>Default range slider:</p>
+        <input type="range" min="-10" max="10" value="0">
+        <span class="speed-value">1</span>
+        <br>
+        <button>Reset</button>
+
+    </div>
+
+    <p>
+        <label for="amount">Price range:</label>
+        <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    </p>
+
+    <div id="slider-range"></div>
+
+    <script>
+        const maxSpeed = 10
+        let time1 = 0,
+            time2 = 0
+        let video = document.querySelector("video");
+        let speedSlider = document.querySelector(".slider-speed input")
+        let btnSpeedReset = document.querySelector(".slider-speed button")
+        let spanSpeedValue = document.querySelector(".slider-speed .speed-value")
+
+        speedSlider.oninput = function () {
+            let speed = Math.round(this.value / maxSpeed * 100) / 100 + 1
+            video.playbackRate = speed
+            spanSpeedValue.textContent = speed
+        }
+        btnSpeedReset.click = function () {
+            speedSlider.value = 0
+        }
+
+        video.oncanplay = function () {
+            
+            console.log("oncanplay");
+            time2 = video.duration
+            
+            $(function () {
+                $("#slider-range").slider({
+                    range: true,
+                    min: 0,
+                    max: time2,
+                    values: [0, time2],
+                    slide: function (event, ui) {
+                        $("#amount").val("$" + ui.values[0] + " - $" + ui.values[1]);
+                        time1 = ui.values[0]
+                        time2 = ui.values[1]
+                        console.log({time1, time2});
+                        
+                    }
+                });
+                $("#amount").val("$" + $("#slider-range").slider("values", 0) +
+                    " - $" + $("#slider-range").slider("values", 1));
+            });
+
+
+        }
+        video.addEventListener("timeupdate", function (event) {
+            if (this.currentTime < time1) {
+                this.currentTime = time1
+            } else if (this.currentTime > time2) {
+                this.currentTime = time1
+            }
+        })
+    </script>
+
+</body>
+
+</html>

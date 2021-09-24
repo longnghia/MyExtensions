@@ -26,7 +26,17 @@ let db = {
     cdns: {}
 }
 
-chrome.storage.sync.get(db, function (data) {
+let toast = document.getElementById("toast")
+let btnSave =document.getElementById("btn-save");
+document.getElementById("btn-add").click=function(){
+    let url = chrome.extension.getURL("../html/option.html") + `#addscript`
+    console.log("redirect to %s", url);
+    chrome.tabs.update(undefined, {
+        url
+    });
+}
+
+chrome.storage.local.get(db, function (data) {
     console.log(data);
     db = data;
 
@@ -49,42 +59,43 @@ chrome.storage.sync.get(db, function (data) {
         let key = command.split("=")[1]
         document.querySelector("title").textContent = "Edit " + key
         if (contain(scripts, key)) {
-
-            let script = scripts[key]
-
-            let listcdn = ""
-            Object.keys(cdns).forEach(function (key) {
-                if (script.cdn.indexOf(key) != -1) {
-                    listcdn += `
-            <label for="${key}">${key}</label><input type="checkbox" name="${key}" checked>
-            `
-                } else
-                    listcdn += `
-            <label for="${key}">${key}</label><input type="checkbox" name="${key}">
-            `
+            createLayout(scripts[key], cdns, false, "Modify Scripts")
+            // delete old script
+            
+            btnSave.addEventListener("click", function (event) {
+                delete db.scripts[key]
+                console.log("modified " + key);
             })
-            let div = document.createElement("div")
-            div.className = "div-modify"
-            let html = `
-            <h2>Modify Scripts</h2>
-            <button id="btn-remove">Remove</button><br>
-            <label for="input-name">Name</label><br>
-            <input type="text" name="input-name" id="input-name" size="30" value="${script.name}""><br>
-            <br>
-            <label for="cars">Required CDN:</label>
-            <ul id="div-cdns collapsible">
-            ${listcdn}
-            </ul>
-            <label for="ta-script">Scripts</label><br>
-            <textarea name="ta-script" cols="70" rows="30" >${script.script}</textarea>
-            <br>
-    `
-            div.innerHTML = html
-            document.getElementById("container").appendChild(div)
-            document.getElementById("btn-save").addEventListener("click", function (event) {
-                saveScript(key)
+            btnSave.textContent="Modify"
+
+            //add remove btn
+            let btnRemove = document.createElement("button")
+            btnRemove.textContent = "Remove"
+            btnRemove.setAttribute("id", "btn-remove")
+            btnRemove.addEventListener("click", function (event) {
+                delete db.scripts[key]
+                console.log("removed",db);
+                
+                chrome.storage.local.set(db, function () {
+                    setToast("Removed")
+                    // redirect to add script page
+                    let url = chrome.extension.getURL("../html/option.html") + `#addscript`
+                    console.log("redirect to %s", url);
+                    chrome.tabs.update(undefined, {
+                        url
+                    });
+                })
             })
+            document.querySelector("div.div-modify").appendChild(btnRemove)
         }
+    } else if (command.startsWith("addscript")) {
+        let script = {
+            name: "",
+            cdn: [],
+            script: ""
+        }
+        createLayout(script, cdns, true, "Add Script")
+
     } else if (command.startsWith("editcdn")) {
         document.querySelector("title").textContent = "Edit CDNs"
 
@@ -98,8 +109,15 @@ chrome.storage.sync.get(db, function (data) {
         `
         div.innerHTML = html
         document.getElementById("container").appendChild(div)
+        //save
+        document.getElementById("btn-save").addEventListener("click", function (event) {
+            db.cdns = JSON.parse(document.querySelector("textarea").value)
+            chrome.storage.local.set(db, function () {
+                setToast("Saved")
+                console.log(db);
 
-    } else if (command.startsWith("addscript")) {
+            })
+        })
 
     }
 })
@@ -108,10 +126,7 @@ function isEmpty(obj) {
     return Object.keys(obj).length === 0;
 }
 
-function saveScript(key) {
-    console.log({
-        key
-    });
+function saveScript() {
 
     let inputName = document.querySelector("#input-name").value
     let script = document.querySelector("textarea").value
@@ -123,28 +138,28 @@ function saveScript(key) {
             checkedList.push(checkbox.name)
     })
 
-    console.log(db.scripts);
-    console.log(db.scripts[key]);
+    if (inputName) {
 
+        let scriptObj = {
+            name: inputName,
+            cdn: checkedList,
+            script: script
+        }
+        let newKey = createKey(inputName);
 
+        db.scripts[newKey] = scriptObj;
 
-    delete db.scripts[key]
-    console.log("deleted " + key);
+        console.log("new", db);
 
-    console.log("deleted:", db.scripts);
-
-    let scriptObj = {
-        name: inputName,
-        cdn: checkedList,
-        script: script
+        chrome.storage.local.set(db, function () {
+            setToast("Saved")
+            chrome.storage.local.get(db, function (data) {
+                db = data;
+            })
+        })
+    } else {
+        setToast("Invalid name", 5000)
     }
-    let newKey = createKey(inputName);
-
-    db.scripts[newKey] = scriptObj;
-
-    console.log("new", db);
-
-    chrome.storage.sync.set(db)
 
 }
 
@@ -154,8 +169,53 @@ function createKey(name = "") {
 
 function contain(obj, key) {
     console.log("check contains key");
-    
-    console.log(obj,key);
-    
+
+    console.log(obj, key);
+
     return Object.keys(obj).indexOf(key) != -1
+}
+
+
+function setToast(value, time = 1500) {
+    document.getElementById("toast")
+    toast.textContent = value
+    setTimeout(function () {
+        toast.textContent = ""
+    }, time)
+}
+
+function createLayout(script, cdns, isNew, title) {
+    let listcdn = ""
+    Object.keys(cdns).forEach(function (key) {
+        if (script.cdn.indexOf(key) != -1) {
+            listcdn += `
+    <label for="${key}">${key}</label><input type="checkbox" name="${key}" checked>
+    `
+        } else
+            listcdn += `
+    <label for="${key}">${key}</label><input type="checkbox" name="${key}">
+    `
+    })
+
+    let div = document.createElement("div")
+    div.className = "div-modify"
+    let html = `
+    <h2>${title}</h2>
+    <label for="input-name">Name</label><br>
+    <input type="text" name="input-name" id="input-name" size="30" value="${script.name}""><br>
+    <br>
+    <label for="cars">Required CDN:</label>
+    <ul id="div-cdns collapsible">
+    ${listcdn}
+    </ul>
+    <label for="ta-script">Scripts</label><br>
+    <textarea name="ta-script" cols="70" rows="30" >${script.script}</textarea>
+    <br>
+    `
+    div.innerHTML = html
+    document.getElementById("container").appendChild(div)
+    //save
+    document.getElementById("btn-save").addEventListener("click", function (event) {
+        saveScript()
+    })
 }

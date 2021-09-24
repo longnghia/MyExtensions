@@ -1,0 +1,31 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-video-player-100-color.png"
+      },
+      "default_title": "Super Player"
+   },
+
+   "name": "Super Player",
+   "short_name": "Player",
+   "description": "An extension to play hls and mp4 not supported by browser",
+   "icons": {
+      "128": "./icon/icons8-video-player-100-color.png"
+   },
+   "homepage_url": "http://github./com/LongNghia/MyExtensions/SuperPlayer",
+   "permissions": ["*://*/*", "webRequest", "webRequestBlocking"],
+
+   "content_scripts": [{
+      "js": ["./js/content.js"],
+      "matches": ["*://*/*"],
+      "run_at": "document_start"
+   }],
+
+   "background": {
+      "scripts": ["js/background.js"]
+   },
+   "version": "1.0.0",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2
+}

@@ -1,0 +1,32 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-v-live-128.png"
+      },
+      "default_title": "Super Formatter"
+   },
+
+   "name": "Super Formatter",
+   "short_name": "Formatter",
+   "description": "An extension to format js file opend on browser",
+   "icons": {
+      "128": "./icon/icons8-v-live-128-color.png"
+   },
+   "homepage_url": "http://github./com/LongNghia/MyExtensions/SuperFormatter",
+   "permissions": ["tabs", "<all_urls>"],
+
+   "content_scripts": [{
+      "js": ["./js/test.js","./js/lib/beautify.js","./js/lib/codemirror.js","./js/content.js"],
+      "matches": ["<all_urls>"],
+      "run_at": "document_start"
+   }],
+
+   "background": {
+      "page": "html/background.html"
+    },
+   "web_accessible_resources": ["js/lib/*","icon/*"],
+   "version": "1.0.0",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2
+}
