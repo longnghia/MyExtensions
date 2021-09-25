@@ -1,32 +1,29 @@
-console.log("hi from super formatter with love");
-a()
+// console.log("hi from super formatter with love");
+// a()
 
 
 
 if (document.readyState !== 'loading') {
     start()
 } else {
-
+    // add css, js src when <head> appears
     document.addEventListener("DOMContentLoaded", start)
 }
 
 function start(event) {
-    console.log("on DomContentLoaded");
-    console.log("href", location);
-
-
     let pre, textContent, pathname, enabled = false,
-        port, head
+        port, head, baseDiv, container
 
+    baseDiv = document.createElement("div")
+    /* 
+        port = chrome.runtime.connect({
+            name: "superformatter"
+        })
+        port.onMessage.addListener(function (msg) {
+            console.log(msg);
 
-
-    port = chrome.runtime.connect({
-        name: "superformatter"
-    })
-    port.onMessage.addListener(function (msg) {
-        console.log(msg);
-
-    })
+        })
+         */
     pathname = location.pathname
     if (pathname.endsWith("user.js")) {
         console.log("Not apply on userscript");
@@ -36,6 +33,9 @@ function start(event) {
     }
     if (enabled) {
         head = document.head || document.body
+        /* 
+        append css code, css href, js src
+        */
         createEle(head, {
             name: "style",
             attr: {
@@ -43,12 +43,7 @@ function start(event) {
             },
             content: `.hidden{display:none}`
         })
-        createEle(document.body, {
-            name: "img",
-            attr: {
-                src: chrome.extension.getURL("../icon/icons8-v-live-128-color.png")
-            }
-        })
+
 
         createEle(head, {
             name: "link",
@@ -65,62 +60,68 @@ function start(event) {
             }
         })
 
-        // createEle(head, {
-        //     name: "script",
-        //     attr: {
-        //         src: chrome.extension.getURL("js/lib/codemirror.js")
-        //     }
-        // })
-
-
+        // this is ok
+        /*         
+                createEle(container, {
+                    name: "img",
+                    attr: {
+                        src: chrome.extension.getURL("../icon/icons8-v-live-128-color.png"),
+                        width: "15px",
+                        height: "auto"
+                    }
+                })
+                createEle(head, {
+                    name: "script",
+                    attr: {
+                        src: chrome.extension.getURL("js/lib/codemirror.js")
+                    }
+                })
+         */
         pre = document.querySelector("pre")
-        // if (pre && pre.textContent) {
-        //     console.log(pre)
-        //     textContent = pre.textContent
-
-        //     port.postMessage({
-        //         action: "SEND-TEXT",
-        //         data: textContent
-        //     })
-        // }
-
-        /* beautify */
-        let tarea = createEle(document.body, {
-            name: "textarea",
+        container = createEle(document.body, {
+            name: "div",
             attr: {
-                id: "tarea"
-            },
-            content: "let a=123"
+                id: "container"
+            }
         })
 
-        let myCodeMirror2 = CodeMirror.fromTextArea(document.getElementById("tarea"), {
-            lineNumbers: true,
-            extraKeys: {
-                "Ctrl-Space": "autocomplete"
+        /* beautify */
+        let tarea = createEle(container, {
+            name: "textarea",
+            attr: {
+                id: "tarea",
+                class: "hidden",
             },
-            mode: {
-                name: "javascript",
-                globalVars: true
-            }
-        });
+            content: js_beautify(pre.textContent)
+        })
+
+        let codeMirrow;
 
 
         let btnFormat = createEle(document.body, {
             name: "button",
             content: "Execute"
         })
+
+
+        /*  false if lineNumbers */
+        // togglePre()
+        // codeMirrow = CodeMirror.fromTextArea(tarea, {
+        //     // lineNumbers: true,
+        //     lineWrapping: true,
+
+        //     mode: {
+        //         name: "javascript",
+        //         // globalVars: true
+        //     }
+        // });
+        // codeMirrow.setSize(null, "100vh")
+
+
         btnFormat.addEventListener("click", function () {
-            pre.className = "hidden"
-
-            console.log(pre.innerText);
-            myCodeMirror2.setValue(pre.innerText)
-            console.log(myCodeMirror2);
-
-            let text = myCodeMirror2.getValue()
-            let btext = js_beautify(text)
-            console.log(btext);
-
-            myCodeMirror2.setValue(btext)
+            console.log("[SF] btnFormat clicked");
+            togglePre()
+            addMirrow()
         })
 
         document.addEventListener("keydown", function (e) {
@@ -130,11 +131,37 @@ function start(event) {
         })
     }
 
+    function addMirrow() {
+        // add codemirrow from textarea
+        let alreadyCM = document.querySelector("div.CodeMirror.cm-s-default")
+        if (alreadyCM) {
+            alreadyCM.remove()
+        } else {
+            codeMirrow = CodeMirror.fromTextArea(tarea, {
+                lineNumbers: true,
+                lineWrapping: true,
+                mode: {
+                    name: "javascript",
+                    globalVars: true
+                }
+            });
+            codeMirrow.setSize(null, "100vh")
+        }
+    }
+
+    function togglePre() {
+        if (pre.className != "hidden") {
+            pre.className = "hidden"
+            container.className = ""
+        } else {
+            pre.className = ""
+            container.className = "hidden"
+        }
+    }
+
 }
 
 function createEle(parent, obj) {
-
-
     let ele = document.createElement(obj.name)
     if (obj.attr) {
         for (let i = 0, l = Object.keys(obj.attr).length; i < l; i++) {

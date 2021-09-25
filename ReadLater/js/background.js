@@ -22,7 +22,8 @@ undo
 // queryTab(current = true, setPopupForChromePage)
 
 var db = {
-    articles: []
+    articles: [],
+    icons: {}
 }
 var articleSample = {
     icon: "../icon/icon-16.png",
@@ -31,12 +32,20 @@ var articleSample = {
     url: "url"
 }
 
-chrome.storage.local.get(null, function (data) {
+chrome.storage.local.get(db, function (data) {
     if (data && data.articles) {
         console.log("inital database", data);
         db = data;
     }
 })
+
+chrome.storage.onChanged.addListener(function (changes) {
+    chrome.storage.local.get(db, function (data) {
+        if (data)
+            db = data;
+
+    })
+});
 
 chrome.extension.onMessage.addListener(function (message, messageSender, sendResponse) {
     if (message.action == "add-all") {
@@ -51,7 +60,7 @@ chrome.extension.onMessage.addListener(function (message, messageSender, sendRes
         chrome.storage.local.set(db, function () {
             console.log("removed :" + index, deletedItem[0].title);
             sendResponse({
-                removed: true
+                removedItem: deletedItem[0]
             })
 
         })
@@ -95,6 +104,7 @@ function saveArticles(tabs) {
         if (obj && !isUrlExist(obj.url)) {
 
             db.articles.splice(0, 0, obj) //push to head
+
             chrome.storage.local.set(db, function () {
                 console.log("saved ", db)
             });
@@ -127,8 +137,19 @@ function getArticle(tab) {
             url: tab.url || null,
             host: new URL(tab.url).origin || null,
         }
+
+        if (!isKeyExist(db.icons, obj.host)) {
+            toDataURL(obj.icon, function (dataUrl) {
+                db.icons[obj.host] = dataUrl
+    
+                chrome.storage.local.set(db, function () {
+                    console.log("saved new icon", dataUrl)
+                });
+            })
+        }
+
         console.log(obj);
-        return obj;
+        return obj
     }
     return null;
 }
@@ -147,6 +168,29 @@ function isUrlExist(url = "") {
     return false;
 }
 
+function isKeyExist(object, key) {
+    let keyArray = Object.keys(object)
+    for (let i = 0; i < keyArray.length; i++) {
+        if (keyArray[i] == key)
+            return true
+    }
+    return false
+}
+// base64 icon
+function toDataURL(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+            callback(reader.result);
+        }
+        reader.readAsDataURL(xhr.response);
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'blob';
+    xhr.send();
+}
+
 /*
  Command stuffs 
  */
@@ -161,13 +205,13 @@ chrome.commands.onCommand.addListener((command) => {
             title: "Added"
         })
 
-        setTimeout(function(){
+        setTimeout(function () {
             chrome.browserAction.setIcon({
                 path: "../icon/icons8-reading-100.png"
             });
             chrome.browserAction.setTitle({
                 title: "Show articles"
             })
-        },5000)
+        }, 5000)
     }
 })

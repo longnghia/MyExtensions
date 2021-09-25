@@ -97,3 +97,8 @@ div.check-delete.not-show {
 .not-show {
     display: none;
 }
+
+#toast{
+    background-color: #aaa;
+    color: blueviolet;
+}

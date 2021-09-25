@@ -16,7 +16,7 @@
    "permissions": ["tabs", "<all_urls>"],
 
    "content_scripts": [{
-      "js": ["./js/test.js","./js/lib/beautify.js","./js/lib/codemirror.js","./js/content.js"],
+      "js": ["./js/test.js","./js/lib/beautify.js","./js/lib/codemirror.js","./js/lib/javascript.js","./js/content.js"],
       "matches": ["<all_urls>"],
       "run_at": "document_start"
    }],

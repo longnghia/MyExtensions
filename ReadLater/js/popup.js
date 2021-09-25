@@ -3,6 +3,7 @@ let countArt = document.getElementById("count-art")
 let ul = document.querySelector("ol");
 let isPopup = true;
 var db = null;
+let toast = document.getElementById("toast")
 
 
 document.getElementById("add-current").onclick = addCurrent
@@ -30,29 +31,52 @@ function updateContent() {
     chrome.storage.local.get(null, function (data) {
         if (data && data.articles) {
             ul.innerHTML = "" //reset
-            console.log("update content get data,", data);
+            console.log("[update content] data=", data);
             db = data;
+            let indexAfterFilter = []
             if (searchTerm) {
-                db.articles = db.articles.filter(function (tab) {
-                    return tab.title.match(searchTerm) || tab.url.match(searchTerm)
+                db.articles = db.articles.filter(function (tab, index) {
+                    if (tab.title.match(searchTerm) || tab.url.match(searchTerm)) {
+                        indexAfterFilter.push(index)
+                        return true
+                    }
                 })
-            }
-            let count = db.articles.length
-            countArt.innerText = count + (count > 1 ? " article" : " articles")
-            if (db && db.articles) {
-                for (let i = 0; i < count; i++) {
-                    let li = createListItem(db.articles[i], i);
-                    ul.appendChild(li)
+                let count = db.articles.length
+                countArt.innerText = count + (count > 1 ? " article" : " articles")
+                if (db && db.articles) {
+                    for (let i = 0; i < count; i++) {
+                        let li = createListItem(db.articles[i], indexAfterFilter[i]);
+                        ul.appendChild(li)
+                    }
                 }
-            }
-            let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
-            console.log("list:", anchors.length);
-            for (let i = 0; i < anchors.length; i++) {
-                let anchor = anchors[i];
-                anchor.onclick = function (event) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                    remove(i);
+                let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
+                console.log("list:", anchors.length);
+                for (let i = 0; i < anchors.length; i++) {
+                    let anchor = anchors[i];
+                    anchor.onclick = function (event) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        remove(indexAfterFilter[i], i);
+                    }
+                }
+            } else {
+                let count = db.articles.length
+                countArt.innerText = count + (count > 1 ? " article" : " articles")
+                if (db && db.articles) {
+                    for (let i = 0; i < count; i++) {
+                        let li = createListItem(db.articles[i], i);
+                        ul.appendChild(li)
+                    }
+                }
+                let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
+                console.log("list:", anchors.length);
+                for (let i = 0; i < anchors.length; i++) {
+                    let anchor = anchors[i];
+                    anchor.onclick = function (event) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        remove(i);
+                    }
                 }
             }
 
@@ -69,9 +93,15 @@ function createListItem({
 }, index) {
     let li = document.createElement("li");
     li.className = "list-art";
-    if (!icon) {
+
+    // use base64 data
+    if (db.icons && db.icons[host]) {
+        icon = db.icons[host]
+    } else {
         icon = "../icon/icons8-broken-robot-50.png"
     }
+
+
     let html = `
     <div>
     <div>
@@ -98,7 +128,7 @@ function createListItem({
     return li;
 }
 
-function remove(index) {
+function remove(index, htmlIndex) {
     // e.preventDefault()
     // console.log(e.target);
     // let index = e.target.getAttribute("data-index")
@@ -107,12 +137,21 @@ function remove(index) {
         "action": "remove",
         "index": index
     }, function (response) {
-        if (response.removed)
-            console.log("background removed ", index)
+        if (response.removedItem) {
+            console.log("[response] removed item ", response.removedItem)
+            setToast(
+                "[Removed] "+ response.removedItem.title
+            )
+        } else {
+            Swal.fire(
+                'Error',
+                response.removedItem.title,
+                'error'
+            )
+        }
 
     })
-
-    removeListItem(index)
+    htmlIndex ? removeListItem(htmlIndex) : removeListItem(index)
 }
 
 function removeListItem(index) {
@@ -246,6 +285,13 @@ function download(data, filename, type) {
 }
 
 function doSearch(event) {
-    searchTerm = event.target.value ?  RegExp(event.target.value,'i') :  null
+    searchTerm = event.target.value ? RegExp(event.target.value, 'i') : null
     updateContent()
+}
+
+function setToast(text, timeout = 2500) {
+    toast.textContent = text;
+    setTimeout(function () {
+        toast.textContent = ""
+    }, timeout)
 }
