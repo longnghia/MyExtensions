@@ -1,0 +1,30 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-list-100.png"
+      },
+      "default_popup": "html/popup.html",
+      "default_title": "Work Ground"
+   },
+   "chrome_url_overrides" : {
+      "newtab": "newtab.html"
+    },
+   "name": "Super Injector",
+   "short_name": "Injector",
+   "description": "An Workona Alternative",
+   "icons": {
+      "128": "./icon/icons8-list-100.png"
+   },
+   "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/WorkGround",
+   "permissions": ["tabs", "*://*/*"],
+
+   "options_pages": "./html/option.html",
+
+   "background": {
+      "scripts": ["js/background.js"]
+   },
+   "version": "1.0.0",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2
+}

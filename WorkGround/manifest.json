@@ -1,0 +1,31 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-list-100.png"
+      },
+      "default_popup": "html/popup.html",
+      "default_title": "Work Ground"
+   },
+   "chrome_url_overrides" : {
+      "newtab": "html/newtab.html"
+    },
+   "name": "Work Ground",
+   "short_name": "Work Ground",
+   "omnibox": { "keyword" : "wg" },
+   "description": "An Workona Alternative",
+   "icons": {
+      "128": "./icon/icons8-list-100.png"
+   },
+   "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/WorkGround",
+   "permissions": ["tabs", "*://*/*","storage","chrome://favicon2/*"],
+
+   "options_pages": "./html/option.html",
+
+   "background": {
+      "scripts": ["js/background.js"]
+   },
+   "version": "1.0.0",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2
+}

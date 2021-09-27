@@ -1,7 +1,7 @@
 {
    "browser_action": {
       "default_icon": {
-         "128": "./icon/icons8-v-live-128.png"
+         "128": "./icon/icons8-javascript-logo-100.png"
       },
       "default_title": "Super Formatter"
    },
@@ -10,9 +10,9 @@
    "short_name": "Formatter",
    "description": "An extension to format js file opend on browser",
    "icons": {
-      "128": "./icon/icons8-v-live-128-color.png"
+      "128": "./icon/icons8-javascript-logo-100.png"
    },
-   "homepage_url": "http://github./com/LongNghia/MyExtensions/SuperFormatter",
+   "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/SuperFormatter",
    "permissions": ["tabs", "<all_urls>"],
 
    "content_scripts": [{

@@ -12,7 +12,7 @@ add other page
 let collection = {
     collection: []
 }
-
+let audio=new Audio("../beep.wav")
 getCollection()
 
 function getCollection() {
@@ -25,14 +25,16 @@ chrome.commands.onCommand.addListener(function (command) {
     getCollection()
     if (command === "fakeCtrlW") {
         chrome.tabs.query({
-            active: true,
+            highlighted: true,
             currentWindow: true
-        }, function (tab) {
-            console.log(isInCollection(tab[0].url));
-            if (!isInCollection(tab[0].url)) {
-                chrome.tabs.remove(tab[0].id)
-            } else {
-                console.log("not close postman ok :3");
+        }, function (tabs) {
+            for (tab of tabs) {
+                if (!isInCollection(tab.url)) {
+                    chrome.tabs.remove(tab.id)
+                } else {
+                    audio.play()
+                    console.log("not close postman ok :3");
+                }
             }
         })
     }

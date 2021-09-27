@@ -1,0 +1,113 @@
+html {
+    height: 100%;
+}
+
+body {
+    box-sizing: border-box;
+    height: 100%;
+    margin: 0;
+    padding: 30px;
+    background-color: aliceblue;
+}
+
+#container {
+    height: 100%;
+    overflow: hidden;
+    background-color: white;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-content: stretch;
+}
+
+#container>aside,
+#container>main {
+    padding: 10px;
+    overflow: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 
+sidebar
+*/
+#sidebar {
+    flex: 0 0 auto;
+    align-self: auto;
+    position: relative;
+}
+
+.sidebar-space {
+    border: 1px dotted #aaa;
+    margin: 10px;
+    height: 100px;
+}
+
+.sidebar-space.active {
+    border: 1px dotted red;
+    margin: 10px;
+}
+
+.sidebar-header {
+    position: sticky;
+    top: 0;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgb(185, 185, 185);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #adadad;
+}
+
+/* 
+main
+*/
+#main {
+    /* background-color: blanchedalmond; */
+}
+
+.main-space-item {
+    border-bottom: 1px solid #aaa;
+    margin: 10px;
+
+}
+
+.main-space {
+    /* border: 1px red dotted; */
+    margin: 15px;
+}
+
+/* 
+resize handle
+*/
+
+.resize-handle--x {
+    flex: 0 0 auto;
+    position: relative;
+    box-sizing: border-box;
+    width: 3px;
+    height: 100%;
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: black;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: black;
+    cursor: ew-resize;
+    user-select: none;
+}
