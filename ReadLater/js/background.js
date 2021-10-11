@@ -32,6 +32,9 @@ var articleSample = {
     url: "url"
 }
 
+var audioError = new Audio('../error.wav')
+var audioSuccess = new Audio('../success.wav')
+
 chrome.storage.local.get(db, function (data) {
     if (data && data.articles) {
         console.log("inital database", data);
@@ -58,7 +61,7 @@ chrome.extension.onMessage.addListener(function (message, messageSender, sendRes
         // console.log(message.index);
         let deletedItem = db.articles.splice(index, 1)
         chrome.storage.local.set(db, function () {
-            console.log("removed :" + index, deletedItem[0].title);
+            console.log("removed :" + index, deletedItem[0].title, deletedItem[0]);
             sendResponse({
                 removedItem: deletedItem[0]
             })
@@ -106,7 +109,13 @@ function saveArticles(tabs) {
             db.articles.splice(0, 0, obj) //push to head
 
             chrome.storage.local.set(db, function () {
-                console.log("saved ", db)
+                if (chrome.runtime.lastError) {
+                    //on false
+                    audioError.play()
+                } else {
+                    audioSuccess.play()
+                    console.log("saved ", db)
+                }
             });
         }
     }
@@ -119,6 +128,14 @@ function saveArticles(tabs) {
         })
         chrome.storage.local.set(db, function () {
             console.log("saved ", db)
+
+            if (chrome.runtime.lastError) {
+                //on false
+                audioError.play()
+            } else {
+                audioSuccess.play()
+                console.log("saved ", db)
+            }
         });
     }
 }
@@ -141,7 +158,7 @@ function getArticle(tab) {
         if (!isKeyExist(db.icons, obj.host)) {
             toDataURL(obj.icon, function (dataUrl) {
                 db.icons[obj.host] = dataUrl
-    
+
                 chrome.storage.local.set(db, function () {
                     console.log("saved new icon", dataUrl)
                 });

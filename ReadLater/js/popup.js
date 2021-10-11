@@ -4,7 +4,7 @@ let ul = document.querySelector("ol");
 let isPopup = true;
 var db = null;
 let toast = document.getElementById("toast")
-
+let newValue, oldValue
 
 document.getElementById("add-current").onclick = addCurrent
 document.getElementById("add-all").onclick = addAll
@@ -20,6 +20,10 @@ updateContent();
 
 chrome.storage.onChanged.addListener(function (changes) {
     console.log("db changed", changes)
+    if (changes && changes.articles) {
+        newValue = (changes.articles.newValue)
+        oldValue = (changes.articles.oldValue)
+    }
     // let count = changes.articles.newValue.length;
     // countArt.innerText = count + (count > 1 ? " article" : " articles")
     updateContent()
@@ -50,7 +54,6 @@ function updateContent() {
                     }
                 }
                 let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
-                console.log("list:", anchors.length);
                 for (let i = 0; i < anchors.length; i++) {
                     let anchor = anchors[i];
                     anchor.onclick = function (event) {
@@ -69,7 +72,6 @@ function updateContent() {
                     }
                 }
                 let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
-                console.log("list:", anchors.length);
                 for (let i = 0; i < anchors.length; i++) {
                     let anchor = anchors[i];
                     anchor.onclick = function (event) {
@@ -79,11 +81,54 @@ function updateContent() {
                     }
                 }
             }
-
+            //open link and remove
+            let li = document.getElementsByClassName("art-link");
+            for (let i = 0; i < li.length; i++) {
+                let anchor = li[i];
+                anchor.onclick = function (event) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    let link = this.href
+                    this.querySelector(".glyphicon.glyphicon-remove").click()
+                    chrome.tabs.create({
+                        url: link
+                    })
+                }
+            }
         }
     })
 
 }
+
+/* 
+shortcuts
+ctrl Z: undo
+*/
+window.addEventListener("keydown",
+    function (event) {
+        event.preventDefault();
+        if (event.ctrlKey) {
+            switch (event.key) {
+                case 'z':
+                    if (oldValue) {
+                        console.log(oldValue);
+                        db.articles = oldValue
+                        chrome.storage.local.set(db, function () {
+                            if (chrome.runtime.lastError) {
+                                console.log("undo failed ", db)
+
+                            } else {
+                                console.log("undo successed ", db)
+                            }
+                        });
+                    }
+                    break;
+                default:
+                    return;
+            }
+        }
+    }, true
+);
 
 function createListItem({
     icon,
@@ -117,7 +162,7 @@ function createListItem({
             <div class="art-action">
             <i class="glyphicon glyphicon-thumbs-up" data-index=${index}></i>
             <i class="glyphicon glyphicon-remove" data-index=${index}></i>
-        </div>
+             </div>
     
         </a>
     </div>
@@ -140,7 +185,7 @@ function remove(index, htmlIndex) {
         if (response.removedItem) {
             console.log("[response] removed item ", response.removedItem)
             setToast(
-                "[Removed] "+ response.removedItem.title
+                "[Removed] " + response.removedItem.title
             )
         } else {
             Swal.fire(
