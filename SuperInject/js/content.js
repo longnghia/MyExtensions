@@ -19,11 +19,6 @@ chrome.storage.local.get(db, function (data) {
     db = data;
 })
 
-// var actualCode = `function a(){console.log("Hi there")}`
-// var script = document.createElement('script');
-// script.textContent = actualCode;
-// (document.head || document.documentElement).appendChild(script);
-// script.remove();
 
 
 function injectCDN(cdn = "") {
@@ -64,7 +59,16 @@ function injectScript(code = "") {
         (document.head || document.documentElement).appendChild(script);
         script.remove();
     }
-
+}
+/* 
+inject css
+https://stackoverflow.com/questions/524696/how-to-create-a-style-tag-with-javascript
+*/
+function injectCss(css = "") {
+    let style = document.createElement('style');
+    (document.head || document.documentElement).appendChild(style);
+    style.setAttribute("type", 'text/css');
+    style.textContent = css
 }
 
 function cdnExistes(src) {
@@ -129,15 +133,7 @@ chrome.runtime.onMessage.addListener(function (message, messageSender, sendRespo
             if (cdn.length > 0) {
                 console.log("injecting: " + name + " ...");
 
-                // cdn.forEach(link => {
-                //     injectCDN(link)
-                //         .then(res => {
-                //             console.log(res)
-                //         })
-                //         .catch(err => {
-                //             console.log(err)
-                //         })
-                // })
+
                 cdn.forEach(function (cdnName) {
                     db.cdns[cdnName].forEach(link => {
                         if (link.length > 0)
@@ -157,3 +153,17 @@ chrome.runtime.onMessage.addListener(function (message, messageSender, sendRespo
     })
 
 });
+
+
+/* 
+add css
+ */
+chrome.storage.local.get(db, function (data) {
+    console.log("updating database...");
+    db = data
+    if (location.href.match("viblo")) {
+        injectCss(`
+    h1{font-size: 50px;color: red !important;}
+    `);
+    }
+})

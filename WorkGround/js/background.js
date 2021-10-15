@@ -49,8 +49,27 @@ function captureCurrentTab() {
 
 */
 
-chrome.omnibox.onInputEntered.addListener(function(text) {
+chrome.omnibox.onInputEntered.addListener(function (text) {
     // Encode user input for special characters , / ? : @ & = + $ #
-    const newURL = 'https://www.google.com/search?q=' + encodeURIComponent(text);
-    chrome.tabs.create({ url: newURL });
-  });
+    // const newURL = 'https://www.google.com/search?q=' + encodeURIComponent(text);
+    let newURL = "https://google.com"
+    switch (text) {
+        case "paste":
+            newURL = "localhost/paste";
+            break;
+        case "format":
+            newURL = "localhost/paste";
+            break;
+        case "git":
+            newURL = "https://github.com/trending";
+            break;
+        case "postman":
+            newURL = "https://speeding-meadow-414241.postman.co/workspace/My-Workspace~38cb4b3c-a098-47d3-894f-8edb4fc73eb0/overview";
+            break;
+        default:
+            break
+    }
+    chrome.tabs.create({
+        url: newURL
+    });
+});

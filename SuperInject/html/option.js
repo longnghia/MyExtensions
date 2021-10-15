@@ -1,34 +1,36 @@
-/*
- let db = {
-    scripts: {
-        "pin_get": {
-            name: "pin get",
-            cdn: ["bootstrap", "jquery"],
-            script: "function a(){console.log('hello from function a')}"
-        },
-        "portal": {
-            name: "portal 123",
-            cdn: ["jquery"],
-            script: "console.log('dep trai qua')"
-        }
-    },
-    cdns: {
-        "bootstrap": [
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css",
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"
-        ],
-        "jquery": ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"]
-    }
-}
- */
+// let db = {
+//     scripts: {
+//         "pin_get": {
+//             name: "pin get",
+//             cdn: ["bootstrap", "jquery"],
+//             script: "function a(){console.log('hello from function a')}"
+//         },
+//         "portal": {
+//             name: "portal 123",
+//             cdn: ["jquery"],
+//             script: "console.log('dep trai qua')"
+//         }
+//     },
+//     cdns: {
+//         "bootstrap": [
+//             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css",
+//             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"
+//         ],
+//         "jquery": ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"]
+//     },
+//     csss: {
+//         "https://viblo.asia": "h1{color:red}"
+//     }
+// }
+
 let db = {
     scripts: {},
     cdns: {}
 }
 
 let toast = document.getElementById("toast")
-let btnSave =document.getElementById("btn-save");
-document.getElementById("btn-add").click=function(){
+let btnSave = document.getElementById("btn-save");
+document.getElementById("btn-add").click = function () {
     let url = chrome.extension.getURL("../html/option.html") + `#addscript`
     console.log("redirect to %s", url);
     chrome.tabs.update(undefined, {
@@ -44,13 +46,12 @@ chrome.storage.local.get(db, function (data) {
     #editscript=jquery
     #editcdn
     #addscript
-    #addcdn 
-
+    #editcss
      */
 
     let {
         scripts,
-        cdns
+        cdns,
     } = db
 
     let href = location.href
@@ -61,12 +62,12 @@ chrome.storage.local.get(db, function (data) {
         if (contain(scripts, key)) {
             createLayout(scripts[key], cdns, false, "Modify Scripts")
             // delete old script
-            
+
             btnSave.addEventListener("click", function (event) {
                 delete db.scripts[key]
                 console.log("modified " + key);
             })
-            btnSave.textContent="Modify"
+            btnSave.textContent = "Modify"
 
             //add remove btn
             let btnRemove = document.createElement("button")
@@ -74,8 +75,8 @@ chrome.storage.local.get(db, function (data) {
             btnRemove.setAttribute("id", "btn-remove")
             btnRemove.addEventListener("click", function (event) {
                 delete db.scripts[key]
-                console.log("removed",db);
-                
+                console.log("removed", db);
+
                 chrome.storage.local.set(db, function () {
                     setToast("Removed")
                     // redirect to add script page
@@ -104,6 +105,32 @@ chrome.storage.local.get(db, function (data) {
         let html = `
         <br>
         <label for="textarea-cdn">Modifiy CDNs</label><br>
+        <textarea name="textarea-cdn" cols="70" rows="30">${JSON.stringify(cdns)}</textarea>
+        <br>
+        `
+        div.innerHTML = html
+        document.getElementById("container").appendChild(div)
+        //save
+        document.getElementById("btn-save").addEventListener("click", function (event) {
+            db.cdns = JSON.parse(document.querySelector("textarea").value)
+            chrome.storage.local.set(db, function () {
+                setToast("Saved")
+                console.log(db);
+
+            })
+        })
+
+    } else if (command.startsWith("editcss")) {
+        csss={
+            "https://viblo.asia":"h1{color: red}",
+            "https://www.w3schools.com/":"h1{color:blue}",
+        }
+        document.querySelector("title").textContent = "Edit CSSs"
+        let div = document.createElement("div")
+        div.className = "div-modify"
+        let html = `
+        <br>
+        <label for="textarea-cdn">Modifiy CSSs</label><br>
         <textarea name="textarea-cdn" cols="70" rows="30">${JSON.stringify(cdns)}</textarea>
         <br>
         `

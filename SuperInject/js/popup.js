@@ -2,6 +2,7 @@ console.log(new Date().toLocaleTimeString());
 let ulCdn = document.querySelector("#div-cdn ul")
 let ulScript = document.querySelector("#div-script ul")
 let divCdn = document.getElementById("div-cdn")
+let divCss = document.getElementById("div-css")
 
 
 // let db = {
@@ -139,6 +140,23 @@ chrome.storage.local.get(db, function (data) {
 
     })
     ulScript.appendChild(btnAdd)
+
+    /* 
+    addcss
+    */
+    if (divCss) {
+        let btnEdit = document.getElementById("btn-edit-css")
+        btnEdit.addEventListener("click", function (event) {
+            event.stopPropagation()
+            console.log("editcss clicked")
+            let url = chrome.extension.getURL("../html/option.html") + '#editcss'
+            // window.open(url)
+            chrome.tabs.create({
+                url
+            });
+
+        })
+    }
 })
 /* 
 
@@ -146,5 +164,6 @@ chrome.storage.local.get(db, function (data) {
 #editcdn
 #addscript
 #addcdn 
+#editcss
 
 */

@@ -112,7 +112,10 @@ db = {
         },
 
 
-    ]
+    ],
+    "config":{
+        "livewall":true
+    }
 }
 
 console.log(db);

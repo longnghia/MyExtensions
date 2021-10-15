@@ -17,9 +17,9 @@
       "128": "./icon/icons8-list-100.png"
    },
    "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/WorkGround",
-   "permissions": ["tabs", "*://*/*","storage","chrome://favicon2/*"],
+   "permissions": ["tabs", "*://*/*","storage"],
 
-   "options_pages": "./html/option.html",
+   "options_page": "./html/option.html",
 
    "background": {
       "scripts": ["js/background.js"]

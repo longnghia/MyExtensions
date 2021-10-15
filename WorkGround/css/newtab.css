@@ -35,6 +35,19 @@ body {
 }
 
 /* 
+
+video
+*/
+
+#myVideo {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+/* 
 sidebar
 */
 #sidebar {
@@ -62,14 +75,17 @@ sidebar
 ::-webkit-scrollbar {
     width: 10px;
 }
+
 ::-webkit-scrollbar-track {
     box-shadow: inset 0 0 5px grey;
     border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb {
     background: rgb(185, 185, 185);
     border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: #adadad;
 }
