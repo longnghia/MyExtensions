@@ -1,0 +1,31 @@
+#container {
+    margin: 10px;
+}
+
+.div-modify {
+    position: relative;
+    width: fit-content;
+    padding: 20px;
+    margin: 10px;
+    border: solid red 1px;
+}
+
+label {
+    width: 80px;
+}
+
+#btn-remove {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+#toast {
+    color: red;
+
+}
+
+#div-cdns {
+    display: flex;
+    justify-content: space-evenly;
+}

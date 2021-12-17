@@ -16,16 +16,33 @@
         Reading list
     </h2>
     <div id="count-art">0 article</div>
+    <div>
+        <button id='toolbar-toggle'>Toolbar</button>
+        <button id='group-toggle'>Group</button>
+        <button id='group-editor'>Group Editor</button>
+    </div>
     <div id="toolbar">
-
         <button id="add-current">Add current tab</button>
         <button id="add-all">Add all current tabs</button>
         <button id="bulk-delete">Select and delete</button>
-        <button id="save-all">Save all</button>
-        <input type="text" id="search">
-        <div id="toast"></div>
+        <button id="save-all">Save HTML</button>
+        <button id="export-json">Export DB</button>
+        <button id="import-json">Import DB</button>
+        <button id="save-tabs">Export Current-Tabs JSON</button>
+        <button id="save-mhtml">Export MHTML</button>
+        <button id="go-firebase"><a href="https://fb-extension-default-rtdb.firebaseio.com" target="_blank">Go to
+                Firebase</a></button>
+        <button id="copy-highlighted">Copy highlighted tabs</button>
+
+
     </div>
+    <input type="text" placeholder="Search" id="search">
+    <div id="toast"></div>
     <br><br>
+
+    <div id="container-group">
+
+    </div>
     <div id="container-art">
         <ol>
         </ol>

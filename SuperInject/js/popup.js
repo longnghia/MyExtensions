@@ -1,32 +1,44 @@
 console.log(new Date().toLocaleTimeString());
-let ulCdn = document.querySelector("#div-cdn ul")
-let ulScript = document.querySelector("#div-script ul")
+let ulCdn = document.querySelector("#div-cdn div.list_cdns")
+let ulScript = document.querySelector("#div-script div.list_scripts")
 let divCdn = document.getElementById("div-cdn")
 let divCss = document.getElementById("div-css")
 
 
-// let db = {
-//     scripts: {
-//         "pin_get": {
-//             name: "pin get",
-//             cdn: ["bootstrap", "jquery"],
-//             script: "function a(){console.log('hello from function a')}"
-//         },
-//         "portal": {
-//             name: "portal",
-//             cdn: [],
-//             script: ""
-//         }
-//     },
-//     cdns: {
-//         "bootstrap": [
-//             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css",
-//             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"
-//         ],
-//         "jquery": ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"]
-//     }
-// }
-
+/* let db = {
+    scripts: {
+        "pin_get": {
+            name: "pin get",
+            cdn: ["bootstrap", "jquery"],
+            script: "function a(){console.log('hello from function a')}"
+        },
+        "portal": {
+            name: "portal",
+            cdn: [],
+            script: ""
+        }
+    },
+    cdns: {
+        "bootstrap": [
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"
+        ],
+        "jquery": ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"]
+    },
+    CSSs: [
+        {
+            "name": "viblo",
+            "match": "https://viblo.com",
+            "css": "h1{font-size: 25px;color: red !important;}"
+        },
+        {
+            "name": "englishtips",
+            "match": "http://englishtips.org/",
+            "css": "h1{font-size: 25px;color: red !important;}"
+        }
+    ]
+}
+ */
 let db = {
     scripts: {},
     cdns: {}
@@ -55,7 +67,8 @@ chrome.storage.local.get(db, function (data) {
         })
     }
     Object.keys(cdns).forEach(key => {
-        let li = document.createElement("LI")
+        let div = document.createElement("div")
+        div.className = "cdn_wrapper"
         let cdnUrls = ''
         cdns[key].forEach(url => {
             cdnUrls += `
@@ -66,8 +79,8 @@ chrome.storage.local.get(db, function (data) {
     <div class="cdn-name">${key}</div>
     ${cdnUrls}
     `
-        li.innerHTML = html;
-        li.addEventListener("click", function (event) {
+        div.innerHTML = html;
+        div.addEventListener("click", function (event) {
             // chrome.runtime.sendMessage({action:'inject-cdn',payload:key})//not work
             chrome.tabs.query({
                 active: !0,
@@ -79,19 +92,20 @@ chrome.storage.local.get(db, function (data) {
                 })
             })
         })
-        ulCdn.insertBefore(li, ulCdn.childNodes[0])
+        ulCdn.insertBefore(div, ulCdn.childNodes[0])
     })
 
 
 
     Object.keys(db.scripts).forEach(key => {
-        let li = document.createElement("LI")
+        let div = document.createElement("div")
+        div.className = "script-wrapper"
 
         let html = `
         ${key}
     `
-        li.innerHTML = html;
-        li.addEventListener("click", function (event) {
+        div.innerHTML = html;
+        div.addEventListener("click", function (event) {
             // chrome.runtime.sendMessage({action:'inject-cdn',payload:key})//not work
             chrome.tabs.query({
                 active: !0,
@@ -119,8 +133,8 @@ chrome.storage.local.get(db, function (data) {
             });
 
         })
-        li.appendChild(btnEdit)
-        ulScript.insertBefore(li, ulScript.childNodes[0])
+        div.appendChild(btnEdit)
+        ulScript.insertBefore(div, ulScript.childNodes[0])
 
     })
     /* 
@@ -158,12 +172,12 @@ chrome.storage.local.get(db, function (data) {
         })
     }
 })
-/* 
+/*
 
 #editscript=jquery
 #editcdn
 #addscript
-#addcdn 
+#addcdn
 #editcss
 
 */

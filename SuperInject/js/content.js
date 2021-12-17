@@ -2,20 +2,21 @@
 bblelpkjpeaahgfmpjphgebjnfjofkci
 https://stackoverflow.com/questions/9515704/use-a-content-script-to-access-the-page-context-variables-and-functions
 
-	<script type="text/javascript" src="newtab.bundle.js"></script>
+    <script type="text/javascript" src="newtab.bundle.js"></script>
     code syntax color
     delete myjsonobj['otherIndustry'];
 */
 
-console.log("hi from SuperInject");
+// console.log("hi from SuperInject");
 
 let db = {
     scripts: {},
-    cdns: {}
+    cdns: {},
+    CSSs: []
 }
 
 chrome.storage.local.get(db, function (data) {
-    console.log(data);
+    // console.log(data);
     db = data;
 })
 
@@ -41,6 +42,7 @@ function injectCDN(cdn = "") {
             (document.head || document.documentElement).appendChild(ele);
 
             ele.onload = function () {
+                showToast("CDN injected!")
                 resolve("inject " + cdn + " successfully!")
             }
             ele.onerror = function () {
@@ -58,6 +60,7 @@ function injectScript(code = "") {
         script.textContent = code;
         (document.head || document.documentElement).appendChild(script);
         script.remove();
+        showToast()
     }
 }
 /* 
@@ -69,6 +72,8 @@ function injectCss(css = "") {
     (document.head || document.documentElement).appendChild(style);
     style.setAttribute("type", 'text/css');
     style.textContent = css
+    console.log("injecting css ...");
+    showToast("CSS injected!")
 }
 
 function cdnExistes(src) {
@@ -104,8 +109,8 @@ function cdnExistes(src) {
 chrome.runtime.onMessage.addListener(function (message, messageSender, sendResponse) {
     chrome.storage.local.get(db, function (data) {
 
-        console.log("receive mesasge:", message);
-        console.log("updating database...");
+        // console.log("receive mesasge:", message);
+        // console.log("updating database...");
 
         db = data
         if (message.action == 'inject-cdn') {
@@ -116,12 +121,12 @@ chrome.runtime.onMessage.addListener(function (message, messageSender, sendRespo
                 console.log("cdn links:", link);
                 if (link.length > 0)
                     injectCDN(link)
-                    .then(res => {
-                        console.log(res)
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
+                        .then(res => {
+                            console.log(res)
+                        })
+                        .catch(err => {
+                            console.log(err)
+                        })
             })
         } else if (message.action == 'inject-script') {
             let key = message.payload
@@ -138,12 +143,12 @@ chrome.runtime.onMessage.addListener(function (message, messageSender, sendRespo
                     db.cdns[cdnName].forEach(link => {
                         if (link.length > 0)
                             injectCDN(link)
-                            .then(res => {
-                                console.log(res)
-                            })
-                            .catch(err => {
-                                console.log(err)
-                            })
+                                .then(res => {
+                                    console.log(res)
+                                })
+                                .catch(err => {
+                                    console.log(err)
+                                })
                     })
                 })
             }
@@ -155,15 +160,44 @@ chrome.runtime.onMessage.addListener(function (message, messageSender, sendRespo
 });
 
 
+function showToast(str = "Script injected!") {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-start',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
+
+    Toast.fire({
+        icon: 'success',
+        title: str
+    })
+}
+
 /* 
 add css
  */
 chrome.storage.local.get(db, function (data) {
-    console.log("updating database...");
+    // console.log("updating database...");
+    // console.log(data);
+    
     db = data
-    if (location.href.match("viblo")) {
-        injectCss(`
-    h1{font-size: 50px;color: red !important;}
-    `);
-    }
+    let cssList = db.CSSs
+    cssList.some(css => {
+        if (css.match && new RegExp(css.match).test(window.location.href)) {
+            injectCss(css.css)
+            return true
+        }
+    })
+    // if (location.href.match("viblo")) {
+    //     injectCss(`
+    // h1{font-size: 50px;color: red !important;}
+    // `);
+    // }
 })
+

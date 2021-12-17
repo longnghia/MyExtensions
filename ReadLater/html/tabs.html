@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabs</title>
+    <link rel="stylesheet" href="../css/tabs.css">
+
+</head>
+
+<body>
+
+    <div id="container">
+        <div id="all-tabs-container">
+            <button id='add-tab-btn'>Add Cliboard URL</button>
+            <button id='uncheck-all'>Uncheck</button>
+        </div>
+
+        <div id="editor-container">
+            <input id="group-name" type="text"></input>
+            <div id="editor">
+                <pre id="pre-editor" contenteditable="true"></pre>
+            </div>
+        </div>
+    </div>
+    <div id="tool-bar">
+        <button id='add-btn'>Add</button>
+        <button id='save-btn'>Save</button>
+    </div>
+    <div>
+        <pre id="final-groups" contenteditable="true"></pre>
+    </div>
+    <script src="../js/beautify.js"></script>
+    <script src="../js/sweetalert2.min.js"></script>
+    <script src="../js/tabs.js"></script>
+</body>
+
+</html>

@@ -23,9 +23,12 @@
 //     }
 // }
 
+
+
 let db = {
     scripts: {},
-    cdns: {}
+    cdns: {},
+    CSSs: []
 }
 
 let toast = document.getElementById("toast")
@@ -52,10 +55,11 @@ chrome.storage.local.get(db, function (data) {
     let {
         scripts,
         cdns,
+        CSSs
     } = db
 
     let href = location.href
-    let command = href.split("#")[1]
+    let command = href.split("#")[1] ? href.split("#")[1] : ''
     if (command.startsWith("editscript")) {
         let key = command.split("=")[1]
         document.querySelector("title").textContent = "Edit " + key
@@ -98,6 +102,8 @@ chrome.storage.local.get(db, function (data) {
         createLayout(script, cdns, true, "Add Script")
 
     } else if (command.startsWith("editcdn")) {
+        console.log('edit cdn');
+
         document.querySelector("title").textContent = "Edit CDNs"
 
         let div = document.createElement("div")
@@ -105,40 +111,41 @@ chrome.storage.local.get(db, function (data) {
         let html = `
         <br>
         <label for="textarea-cdn">Modifiy CDNs</label><br>
-        <textarea name="textarea-cdn" cols="70" rows="30">${JSON.stringify(cdns)}</textarea>
+        <textarea name="textarea-cdn" cols="100" rows="30">${js_beautify(JSON.stringify(cdns))}</textarea>
         <br>
         `
         div.innerHTML = html
         document.getElementById("container").appendChild(div)
         //save
         document.getElementById("btn-save").addEventListener("click", function (event) {
-            db.cdns = JSON.parse(document.querySelector("textarea").value)
-            chrome.storage.local.set(db, function () {
-                setToast("Saved")
-                console.log(db);
+            try {
+                db.cdns = JSON.parse(document.querySelector("textarea").value)
+                chrome.storage.local.set(db, function () {
+                    setToast("Saved")
+                    console.log(db);
 
-            })
+                })
+            } catch (e) {
+                setToast(e, 5000)
+            }
         })
 
     } else if (command.startsWith("editcss")) {
-        csss={
-            "https://viblo.asia":"h1{color: red}",
-            "https://www.w3schools.com/":"h1{color:blue}",
-        }
-        document.querySelector("title").textContent = "Edit CSSs"
+        CSSs = CSSs ? CSSs : []
+        document.querySelector("title").textContent = "Edit CSS"
         let div = document.createElement("div")
         div.className = "div-modify"
         let html = `
         <br>
         <label for="textarea-cdn">Modifiy CSSs</label><br>
-        <textarea name="textarea-cdn" cols="70" rows="30">${JSON.stringify(cdns)}</textarea>
+        <textarea name="textarea-cdn" cols="100" rows="30">${js_beautify(JSON.stringify(CSSs))}</textarea>
         <br>
         `
         div.innerHTML = html
         document.getElementById("container").appendChild(div)
         //save
         document.getElementById("btn-save").addEventListener("click", function (event) {
-            db.cdns = JSON.parse(document.querySelector("textarea").value)
+            db.CSSs = JSON.parse(document.querySelector("textarea").value)
             chrome.storage.local.set(db, function () {
                 setToast("Saved")
                 console.log(db);
@@ -216,12 +223,17 @@ function createLayout(script, cdns, isNew, title) {
     Object.keys(cdns).forEach(function (key) {
         if (script.cdn.indexOf(key) != -1) {
             listcdn += `
-    <label for="${key}">${key}</label><input type="checkbox" name="${key}" checked>
+            <div class="div-cdn">
+            <input type="checkbox" name="${key}" checked>
+            <label for="${key}">${key}</label>
+            </div>
     `
         } else
             listcdn += `
-    <label for="${key}">${key}</label><input type="checkbox" name="${key}">
-    `
+            <div class="div-cdn">
+            <input type="checkbox" name="${key}"><label for="${key}">${key}</label>
+            </div>
+            `
     })
 
     let div = document.createElement("div")
@@ -232,9 +244,9 @@ function createLayout(script, cdns, isNew, title) {
     <input type="text" name="input-name" id="input-name" size="30" value="${script.name}""><br>
     <br>
     <label for="cars">Required CDN:</label>
-    <ul id="div-cdns collapsible">
+    <div id="div-cdns">
     ${listcdn}
-    </ul>
+    </div>
     <label for="ta-script">Scripts</label><br>
     <textarea name="ta-script" cols="70" rows="30" >${script.script}</textarea>
     <br>

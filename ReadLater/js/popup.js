@@ -1,22 +1,54 @@
+/* 
+https://stackoverflow.com/questions/11000826/ctrls-preventdefault-in-chrome
+https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/write
+*/
 let searchTerm = null
 let countArt = document.getElementById("count-art")
+let containerArt = document.getElementById("container-art")
+let containerGroup = document.getElementById("container-group")
 let ul = document.querySelector("ol");
 let isPopup = true;
 var db = null;
 let toast = document.getElementById("toast")
 let newValue, oldValue
+let toolbar = document.getElementById("toolbar")
 
 document.getElementById("add-current").onclick = addCurrent
 document.getElementById("add-all").onclick = addAll
 document.getElementById("bulk-delete").onclick = showCheckBox
 document.getElementById("btnDelete").onclick = bulkDelete
 document.getElementById("save-all").onclick = saveAll
+document.getElementById("export-json").onclick = saveJSON
+document.getElementById("import-json").onclick = importJSON
+document.getElementById("save-tabs").onclick = saveTabs
+document.getElementById("save-mhtml").onclick = saveMHTML
 document.getElementById("search").onkeyup = doSearch
+document.getElementById("toolbar-toggle").onclick = toggleToolbar
+document.getElementById("group-toggle").onclick = toggleGroup
+document.getElementById("group-editor").onclick = openGroupEditor
+document.getElementById("copy-highlighted").onclick = copyHighlighted
+/* 
+db = {
+    acticles: [],
+    groups: [
+        {
+            name: 'english',
+            urls: ['https://cambridge.com', 'https://doc.com']
+        }, {
+            name: 'Deep learning',
+            urls: ['file:///home/longa/Downloads/Deep%20Learning%20for%20Vision%20Systems-LQN.pdf', 'https://google.com']
+        }
+    ],
+    settings:{
+        useFirebase: true
+    }
+}
+ */
 
+// changeBrowserActionIcon()
 
-changeBrowserActionIcon()
+document.getElementById("search").focus()
 updateContent();
-
 
 chrome.storage.onChanged.addListener(function (changes) {
     console.log("db changed", changes)
@@ -24,11 +56,11 @@ chrome.storage.onChanged.addListener(function (changes) {
         newValue = (changes.articles.newValue)
         oldValue = (changes.articles.oldValue)
     }
-    // let count = changes.articles.newValue.length;
-    // countArt.innerText = count + (count > 1 ? " article" : " articles")
     updateContent()
-
 });
+// if (window.location.hash=='#groups'){
+//     toggleGroup()
+// }
 
 function updateContent() {
 
@@ -38,6 +70,9 @@ function updateContent() {
             console.log("[update content] data=", data);
             db = data;
             let indexAfterFilter = []
+            chrome.browserAction.setBadgeText({
+                text: '' + db.articles.length
+            })
             if (searchTerm) {
                 db.articles = db.articles.filter(function (tab, index) {
                     if (tab.title.match(searchTerm) || tab.url.match(searchTerm)) {
@@ -91,11 +126,16 @@ function updateContent() {
                     let link = this.href
                     this.querySelector(".glyphicon.glyphicon-remove").click()
                     chrome.tabs.create({
-                        url: link
+                        url: link,
+                        active: false
                     })
                 }
             }
         }
+
+        // groups
+        // initGroups();
+
     })
 
 }
@@ -106,10 +146,10 @@ ctrl Z: undo
 */
 window.addEventListener("keydown",
     function (event) {
-        event.preventDefault();
         if (event.ctrlKey) {
             switch (event.key) {
                 case 'z':
+                    event.preventDefault();
                     if (oldValue) {
                         console.log(oldValue);
                         db.articles = oldValue
@@ -122,6 +162,10 @@ window.addEventListener("keydown",
                             }
                         });
                     }
+                    break;
+                case 's':
+                    event.preventDefault();
+                    saveAll()
                     break;
                 default:
                     return;
@@ -140,12 +184,21 @@ function createListItem({
     li.className = "list-art";
 
     // use base64 data
-    if (db.icons && db.icons[host]) {
-        icon = db.icons[host]
-    } else {
-        icon = "../icon/icons8-broken-robot-50.png"
-    }
+    // if (db.icons && db.icons[host]) {
+    //     icon = db.icons[host]
+    // } else {
+    //     icon = "../icon/icons8-broken-robot-50.png"
+    // }
 
+    /* 
+    use chrome://favicon2/ icons
+    eg: chrome://favicon2/?size=16&scale_factor=1x&page_url=https%3A%2F%2Fopen.spotify.com
+    eg: chrome://favicon2?page_url=https%3A%2F%2Fopen.spotify.com
+    => NOT WORK
+    use chrome://favicon instead of chrome://favicon2
+    chrome://favicon/size/16@2x/https://keep.google.com/u/0/
+    */
+    icon = "chrome://favicon/size/16@2x/" + host
 
     let html = `
     <div>
@@ -206,8 +259,8 @@ function removeListItem(index) {
 function addAll() {
     changeBrowserActionIcon()
     chrome.runtime.sendMessage({
-            "action": "add-all",
-        },
+        "action": "add-all",
+    },
         function (response) {
             addToList(response)
         }
@@ -217,8 +270,8 @@ function addAll() {
 function addCurrent() {
     changeBrowserActionIcon()
     chrome.runtime.sendMessage({
-            "action": "add-current",
-        },
+        "action": "add-current",
+    },
         // addToList(tabs))
         function (response) {
             addToList(response)
@@ -332,6 +385,12 @@ function download(data, filename, type) {
 function doSearch(event) {
     searchTerm = event.target.value ? RegExp(event.target.value, 'i') : null
     updateContent()
+    // if (!ul.style.display == 'none') {
+    //     // main section
+    // } else {
+    //     // group section
+
+    // }
 }
 
 function setToast(text, timeout = 2500) {
@@ -339,4 +398,110 @@ function setToast(text, timeout = 2500) {
     setTimeout(function () {
         toast.textContent = ""
     }, timeout)
+}
+
+function saveJSON() {
+    chrome.runtime.sendMessage({
+        action: 'export-json'
+    })
+}
+
+function importJSON() {
+    chrome.tabs.create({
+        url: chrome.extension.getURL('../html/importJson.html')
+    })
+}
+function saveMHTML() {
+    chrome.runtime.sendMessage({
+        action: 'save-mhtml'
+    })
+}
+
+function saveTabs() {
+    console.log('saving tabs...');
+
+    chrome.runtime.sendMessage({
+        action: 'save-tabs'
+    })
+}
+
+function toggleToolbar() {
+    toolbar.style.display == 'block' ? toolbar.style.display = 'none' : toolbar.style.display = 'block'
+}
+
+function toggleGroup() {
+    console.log('toggleGroup');
+    ul.style.display = 'none';
+    initGroups()
+}
+
+function initGroups() {
+    containerGroup.innerHTML = ''
+
+    if (db && db.groups) {
+        console.log('initing group...');
+
+        for (let i = 0; i < db.groups.length; i++) {
+            let div = document.createElement('div');
+            div.className = "group-item";
+            let group = db.groups[i]
+            let html = `${group.name}`;
+            group.urls.forEach(url => {
+                let host = new URL(url).origin || '';
+                html += `
+                <img src="chrome://favicon/size/16@2x/${host}" width="15">
+                    `
+            })
+            div.innerHTML = html;
+            div.onclick = function (e) {
+                group.urls.forEach(url => {
+                    chrome.tabs.create({
+                        url: url,
+                        active: false
+                    })
+                })
+            }
+            containerGroup.appendChild(div)
+        }
+    }
+}
+
+function openGroupEditor() {
+    chrome.tabs.create({
+        url: chrome.extension.getURL('../html/tabs.html')
+    })
+}
+
+function copyHighlighted() {
+    chrome.tabs.query({
+        highlighted: true,
+        currentWindow: true
+    }, function (tabs) {
+        let list = tabs.reduce((list, tab) => { list += tab.url + '\n'; return list }, '')
+        console.log('highlighted tabs:', list)
+        navigator.clipboard.writeText(list).then(function () {
+            showToast(tabs.length + ' tab copied!!')
+        }, function () {
+            showToast('Failed!!', 'error')
+        });
+    })
+}
+
+function showToast(text = 'success!', icon = 'success') {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
+
+    Toast.fire({
+        icon: icon,
+        title: text
+    })
 }

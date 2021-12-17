@@ -1,0 +1,57 @@
+li:hover {
+    background-color: #bbb;
+    cursor: pointer;
+}
+
+li {
+    padding: 10px;
+}
+
+/* div-cdn */
+#div-cdn div.cdn_wrapper:hover {
+    background-color: #bbb;
+    cursor: pointer;
+}
+
+#div-cdn div.cdn_wrapper {
+    margin-top: 10px;
+    margin-left: 10px;
+
+}
+
+#div-cdn div.cdn-name {
+    font-weight: 600;
+}
+
+/* div-script */
+#div-script div.script-wrapper:hover {
+    background-color: #bbb;
+    cursor: pointer;
+}
+
+#div-script div.script-wrapper {
+    margin-bottom: 10px;
+    margin-left: 10px;
+    border-bottom: solid 1px #bbb;
+}
+
+
+.btn-edit-script {
+    position: absolute;
+    right: 15px;
+}
+
+/* tool bar */
+#tool-bar {
+    display: flex;
+    justify-content: space-around;
+}
+
+.tool-bar-section {
+    cursor: pointer;
+}
+
+.tool-bar-section.selected {
+    cursor: pointer;
+    background-color: #bbb;
+}

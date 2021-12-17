@@ -1,6 +1,6 @@
 {
    "background": {
-      "scripts": ["js/background.js"]
+      "page":"html/background.html"
    },
    "browser_action": {
       "default_icon": {
@@ -10,12 +10,12 @@
       "default_popup": "html/popup.html",
       "default_title": "Show articles"
    },
-   "commands":{
-      "save-this-tab":{
-         "suggested_key":{
-            "default":"Ctrl+B"
+   "commands": {
+      "save-this-tab": {
+         "suggested_key": {
+            "default": "Ctrl+B"
          },
-         "description":"Save current tab"
+         "description": "Save current tab"
       }
    },
    "default_locale": "en",
@@ -27,6 +27,15 @@
    },
    "manifest_version": 2,
    "name": "Read Later!",
-   "permissions": ["tabs", "storage","unlimitedStorage", "*://*/*"],
-   "version": "1.0.1"
+   "permissions": ["downloads", "tabs", "storage", "unlimitedStorage", "*://*/*", "chrome://favicon/","pageCapture", "identity"],
+   "version": "1.0.3",
+   "content_security_policy":"script-src 'self' 'unsafe-eval' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
+   "oauth2": {
+      "client_id": "94024781140-v67hp1ntmlga4o5ejt1prlgu9gk9g8a7.apps.googleusercontent.com",
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile"
+      ]
+    },
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAusFqdweRPd3FZ4Ew/rWtNyHVeVBm+KUdd8tLqyLEiDdy7arjCFd4ALAJYd5LRru9haxF0007mCieFc9E8Y1pRMsgGwoqRJsF07svB+bIZcnk+IcJ4ixMMRpqGMTx4bVsQdS02fJy/9pySrvQn2PkgLqdxSicggAynBXWaRyf/TwIQmOrcsBj9hcZ5p+nBvulL+ePA6Z29QF4HyIbS4kYM5b7wpY8jZGWOVoERFtNQVykJRhoYtKWt96WayNNhDzdb9tBElwJRNpxsTx5QrxBb12z/OOszGTLLshmDt09k3Xi9M1uj+tcWUdGq9hLKw8jZqqoLDofHmVwNlL2DynrrwIDAQAB"
 }

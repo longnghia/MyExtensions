@@ -1,8 +1,8 @@
 {
     "content_scripts": [{
-       "js":["./js/content.js"],
+       "js":["./js/sweetalert2.all.min.js","./js/content.js"],
        "matches":["*://*/*"],
-       "run_at":"document_start"
+       "run_at":"document_idle"
     }],
     "browser_action": {
        "default_icon": {
@@ -21,7 +21,7 @@
     "name": "Super Injector",
     "short_name":"Injector",
     "homepage_url":"http://github./com/LongNghia/MyExtensions/SuperInject",
-    "permissions": [  "tabs","storage" ,"unlimitedStorage", "*://*/*" ],
+    "permissions": [ "pageCapture", "tabs","storage" ,"unlimitedStorage", "*://*/*" ],
     "version": "1.0.0"
  }
  
