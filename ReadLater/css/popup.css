@@ -2,6 +2,24 @@ html {
     width: 330px;
     overflow-y: overlay;
 }
+#headbar{
+    position: sticky;
+    top: 0px;
+    background: white;
+    z-index: 9999;
+    padding-bottom: 20px;
+}
+
+#infobar{
+    /* position: sticky; */
+    display: flex;
+    margin-bottom: 10px;
+}
+
+#menubar{
+    display: flex;
+    justify-content: space-evenly;
+}
 
 #toolbar {
     /* display: flex;
@@ -20,6 +38,13 @@ html {
     height: 30px;
     width: 100%;
     margin: 3px 0 0 0;
+}
+
+#search{
+    outline: none;
+    border-width: 0 1px 1px 0;
+    margin: 10px;
+    color: blueviolet;
 }
 
 .hidden {
@@ -123,9 +148,11 @@ div.check-delete.not-show {
 }
 
 #toast {
-    /* background-color: #aaa; */
+    background-color: #aaa;
     color: blueviolet;
-    height: 25px;
+    height: 67px;
+    position: fixed;
+    bottom: 0px;
 }
 
 

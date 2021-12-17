@@ -15,11 +15,19 @@
     <h2>
         Reading list
     </h2>
-    <div id="count-art">0 article</div>
-    <div>
-        <button id='toolbar-toggle'>Toolbar</button>
-        <button id='group-toggle'>Group</button>
-        <button id='group-editor'>Group Editor</button>
+    <div id="headbar">
+
+        <div id="infobar">
+    
+            <div id="count-art">0 article</div>
+            <input type="text" placeholder="Search" id="search" spellcheck="false">
+        </div>
+    
+        <div id="menubar">
+            <button id='toolbar-toggle'>Toolbar</button>
+            <button id='group-toggle'>Group</button>
+            <button id='group-editor'>Group Editor</button>
+        </div>
     </div>
     <div id="toolbar">
         <button id="add-current">Add current tab</button>
@@ -33,10 +41,8 @@
         <button id="go-firebase"><a href="https://fb-extension-default-rtdb.firebaseio.com" target="_blank">Go to
                 Firebase</a></button>
         <button id="copy-highlighted">Copy highlighted tabs</button>
-
-
     </div>
-    <input type="text" placeholder="Search" id="search">
+    <!-- <input type="text" placeholder="Search" id="search"> -->
     <div id="toast"></div>
     <br><br>
 

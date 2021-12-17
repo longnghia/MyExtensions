@@ -1,15 +1,27 @@
-/* 
-remove extension tab: start with: chrome://
-bulk delete
-shortcut and notification
-undo
- */
-
-
 //https://stackoverflow.com/questions/20077487/chrome-extension-message-passing-response-not-sent
 // https://stackoverflow.com/questions/38561136/chrome-extension-to-change-dom-with-a-button-in-extension-popup
 //https://stackoverflow.com/questions/586182/how-to-insert-an-item-into-an-array-at-a-specific-index-javascript
 
+
+/* 
+db = {
+    acticles: [],
+    groups: [
+        {
+            name: 'english',
+            urls: ['https://cambridge.com', 'https://doc.com']
+        }, {
+            name: 'Deep learning',
+            urls: ['file:///home/longa/Downloads/Deep%20Learning%20for%20Vision%20Systems-LQN.pdf', 'https://google.com']
+        }
+    ],
+    settings:{
+        useFirebase: true,
+        loadIcon: true,
+        
+    }
+}
+ */
 
 var db = {
     articles: []

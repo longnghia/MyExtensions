@@ -1,0 +1,30 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-hook-100-color.png"
+      },
+      "default_title": "Extension to hook another js host"
+   },
+
+   "name": "Hook Script",
+   "short_name": "hook script",
+   "description": "An extension to hook another js file",
+   "icons": {
+      "128": "./icon/icons8-hook-100-color.png"
+   },
+   "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/HookScript",
+   "permissions": ["tabs", "*://*/*", "webRequest", "webRequestBlocking", "storage", "unlimitedStorage","contextMenus"],
+   "web_accessible_resources": ["assests/*"],
+
+   "options_page": "./html/option.html",
+
+   "background": {
+      "scripts": ["js/background.js"]
+   },
+   "version": "1.0.0",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2,
+   "content_security_policy": "script-src 'self' https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js; object-src 'self'"
+
+}

@@ -131,6 +131,33 @@ function updateContent() {
                     })
                 }
             }
+
+            // lazy load------------------
+            // --> dramatically improve loading speed!!
+            var lazyloadImages = document.querySelectorAll("img.lazy");
+            var lazyloadThrottleTimeout;
+            const preload = 1.5 // a window and a half
+            function lazyload() {
+                if (lazyloadThrottleTimeout) {
+                    clearTimeout(lazyloadThrottleTimeout);
+                }
+
+                lazyloadThrottleTimeout = setTimeout(function () {
+                    var scrollTop = window.pageYOffset; //scrollY
+                    lazyloadImages.forEach(function (img) {
+                        if (img.offsetTop < (window.innerHeight * preload+ scrollTop)) {
+                            img.src = img.dataset.src;
+                            img.classList.remove('lazy');
+                        }
+                    });
+                    if (lazyloadImages.length == 0) {
+                        document.removeEventListener("scroll", lazyload);
+                    }
+                }, 20);
+            }
+            lazyload()
+            document.addEventListener("scroll", lazyload);
+            // -------------
         }
 
         // groups
@@ -207,13 +234,14 @@ function createListItem({
     <div>
     <div>
         <a class="art-link" href=${url} target="_blank" title="${title}">
-            <img src="${icon}">
+            <!--<img src="${icon}">-->
+            <img src="" data-src=${icon} class="lazy">
             <div class="art-info">
                 <div class="art-title">${title}</div>
                 <div class="art-host">${host}</div>
             </div>
             <div class="art-action">
-            <i class="glyphicon glyphicon-thumbs-up" data-index=${index}></i>
+            <!--<i class="glyphicon glyphicon-thumbs-up" data-index=${index}></i>-->
             <i class="glyphicon glyphicon-remove" data-index=${index}></i>
              </div>
     

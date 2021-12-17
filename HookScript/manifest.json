@@ -1,0 +1,37 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-hook-100-color.png"
+      },
+      "default_title": "Extension to hook another js host"
+   },
+
+   "name": "Hook Script",
+   "short_name": "hook script",
+   "description": "An extension to hook another js file",
+   "icons": {
+      "128": "./icon/icons8-hook-100-color.png"
+   },
+   "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/HookScript",
+   "permissions": ["tabs", "*://*/*", "webRequest", "webRequestBlocking", "storage", "unlimitedStorage", "contextMenus", "identity"],
+   "web_accessible_resources": ["assests/*"],
+
+   "options_page": "./html/option.html",
+
+   "background": {
+      "page": "html/background.html"
+   },
+   "version": "1.0.2",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2,
+   "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
+   "oauth2": {
+      "client_id": "94024781140-js7h9hel4i7olb1k771ka54a280rsq70.apps.googleusercontent.com",
+      "scopes": [
+         "https://www.googleapis.com/auth/userinfo.email",
+         "https://www.googleapis.com/auth/userinfo.profile"
+      ]
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt4a5oQr72OuajqNRk2g1HrYFUnbNdl02YmeGCr4NgCLy2NdjlQ22VxyHBtcSyvV69astekOy84omHp1Cu1vwSuLD9+RX5v9MhIkM5gTGPFGUg0N6MpQgyC2//A+SdNulGEmBywZ2cW+3iT6f7nlZGO6eGGlR/0FslPlIyEXotvUT94jzXxtv9eYZO2Kd1D18pzK0fdEokgiHgd8ieyqU3nFMPJCKiyTVW8ZaEWqZCwPZN2T20WQNjgbeEo782+pQyy5CkY3qT8Uisprc3uRdCijI0jVZHoyvC3c3Wu2pjfKhIGjr1VaPoLGyBFAHFErOl9kNVn7K8wsEyMtYnxQZ1QIDAQAB"
+}

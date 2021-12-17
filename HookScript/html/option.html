@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hook Scripts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .hook {
+            display: flex;
+            margin-bottom: 10px;
+            font-size: small;
+        }
+
+        .hook-src {
+            width: 30%;
+            padding: 15px;
+            min-width: 150px;
+            border-bottom: 1px blue solid;
+            border-right: 1px blue solid;
+            /* overflow: scroll; */
+            /* white-space: nowrap; */
+            overflow: hidden;
+            height: 20px;
+            color: rgb(77, 77, 77);
+        }
+
+        .hook-des {
+            width: 50%;
+            padding: 15px;
+
+            min-width: 150px;
+            border-bottom: 1px rgb(12, 12, 80) solid;
+            overflow: hidden;
+            height: 20px;
+        }
+
+        
+
+        .hook-remove {
+            background-color: DodgerBlue;
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Darker background on mouse-over */
+        .hook-remove:hover {
+            background-color: RoyalBlue;
+        }
+
+        #toast {
+            display: block;
+            height: 30px;
+            margin-bottom: 15px;
+            margin-top: 15px;
+            color: red
+        }
+
+        #toolbox {
+            position: sticky;
+        }
+
+        [contenteditable] {
+            outline: 0px solid transparent;
+        }
+    </style>
+    <link rel="stylesheet" href="../css/switch.css">
+</head>
+
+<body>
+    <div id="container">
+        <div id=toolbox>
+            <button id="submit">Save</button>
+            <button id="add">Add</button>
+        </div>
+        <div id="toast"></div>
+        <div id="hooks-container">
+
+        </div>
+
+    </div>
+
+    <script src="../js/option.js"></script>
+
+</body>
+
+</html>
