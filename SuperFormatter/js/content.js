@@ -1,7 +1,16 @@
-// console.log("hi from super formatter with love");
-// a()
+/* 
+    port = chrome.runtime.connect({
+        name: "superformatter"
+    })
+    port.onMessage.addListener(function (msg) {
+        console.log(msg);
 
+    })
+        */
 
+/* 
+https://github.com/codemirror/CodeMirror/issues/4491
+*/
 
 if (document.readyState !== 'loading') {
     start()
@@ -10,31 +19,22 @@ if (document.readyState !== 'loading') {
     document.addEventListener("DOMContentLoaded", start)
 }
 
+let pre, textContent, pathname, enabled = false,
+    port, head, baseDiv, container, codeMirrow
+
 function start(event) {
-    let pre, textContent, pathname, enabled = false,
-        port, head, baseDiv, container
 
     baseDiv = document.createElement("div")
-    /* 
-        port = chrome.runtime.connect({
-            name: "superformatter"
-        })
-        port.onMessage.addListener(function (msg) {
-            console.log(msg);
-
-        })
-         */
     pathname = location.pathname
+    pre = document.querySelector("pre")
+    head = document.head || document.body
+
     if (pathname.endsWith("user.js")) {
         console.log("Not apply on userscript");
-
-    } else if (pathname.endsWith(".js")) {
-        enabled = true
-    }
-    if (enabled) {
-        head = document.head || document.body
+        return
+    } else if (pathname.endsWith(".js") || pathname.endsWith(".css") && pre) {
         /* 
-        append css code, css href, js src
+        append css code, css href, js src || or can define all css in css:["","",""] in manifest
         */
         createEle(head, {
             name: "style",
@@ -43,7 +43,6 @@ function start(event) {
             },
             content: `.hidden{display:none}`
         })
-
 
         createEle(head, {
             name: "link",
@@ -77,13 +76,13 @@ function start(event) {
                     }
                 })
          */
-        pre = document.querySelector("pre")
         container = createEle(document.body, {
             name: "div",
             attr: {
                 id: "container"
             }
         })
+
 
         /* beautify */
         let tarea = createEle(container, {
@@ -95,7 +94,6 @@ function start(event) {
             content: js_beautify(pre.textContent)
         })
 
-        let codeMirrow;
 
 
         let btnFormat = createEle(document.body, {
@@ -129,36 +127,41 @@ function start(event) {
                 btnFormat.click();
             }
         })
-    }
 
-    function addMirrow() {
-        // add codemirrow from textarea
-        let alreadyCM = document.querySelector("div.CodeMirror.cm-s-default")
-        if (alreadyCM) {
-            alreadyCM.remove()
-        } else {
-            codeMirrow = CodeMirror.fromTextArea(tarea, {
-                lineNumbers: true,
-                lineWrapping: true,
-                mode: {
-                    name: "javascript",
-                    globalVars: true
-                }
-            });
-            codeMirrow.setSize(null, "100vh")
-        }
-    }
 
-    function togglePre() {
-        if (pre.className != "hidden") {
-            pre.className = "hidden"
-            container.className = ""
-        } else {
-            pre.className = ""
-            container.className = "hidden"
-        }
     }
+}
 
+
+function addMirrow() {
+    // add codemirrow from textarea
+    let alreadyCM = document.querySelector("div.CodeMirror.cm-s-default")
+    if (alreadyCM) {
+        alreadyCM.remove()
+    } else {
+        codeMirrow = CodeMirror.fromTextArea(tarea, {
+            // scrollbarStyle: "null",
+            viewportMargin: Infinity,
+            // height: auto,
+            lineNumbers: true,
+            lineWrapping: true,
+            mode: {
+                name: "javascript",
+                globalVars: true
+            }
+        });
+        codeMirrow.setSize(null, "100vh")
+    }
+}
+
+function togglePre() {
+    if (pre.className != "hidden") {
+        pre.className = "hidden"
+        container.className = ""
+    } else {
+        pre.className = ""
+        container.className = "hidden"
+    }
 }
 
 function createEle(parent, obj) {

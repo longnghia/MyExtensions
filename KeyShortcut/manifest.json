@@ -1,0 +1,54 @@
+{
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-shortcut-100.png"
+      },
+      "default_title": "All shortcuts I need!"
+   },
+
+   "name": "Key Shortcut",
+   "short_name": "KeyShortcut",
+   "description": "A set of keyboard shortcuts to make my life easier.",
+   "icons": {
+      "128": "./icon/icons8-shortcut-100.png"
+   },
+   "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/KeyShortcut",
+   "permissions": ["tabs", "storage", "*://*/*"],
+
+   "content_scripts": [{
+      "js": ["./js/content.js"],
+      "matches": ["*://*/*"],
+      "run_at": "document_start"
+   }],
+
+   "options_page": "./html/option.html",
+
+   "background": {
+      "scripts": ["js/background.js"]
+   },
+   "version": "1.0.0",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2,
+   "commands": {
+      "open-in-bg": {
+         "suggested_key": {
+            "default": "Ctrl+Q"
+         },
+         "description": "open selected in background"
+      },
+      "fakeCtrlW": {
+         "description": "Fake the Ctrl W event"
+      },
+      "logTabs": {
+         "description": "Log current window's tabs"
+      },
+      "dublicateTab": {
+         "suggested_key": {
+            "default": "Ctrl+M"
+         },
+         "description": "Duplicate a tab"
+      }
+
+   }
+}

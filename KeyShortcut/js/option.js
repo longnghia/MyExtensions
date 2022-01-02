@@ -3,7 +3,7 @@ let collection = document.getElementById("collection");
 function saveCollection() {
     console.log(collection.value);
     let arrayUrls = collection.value.trim().split('\n')
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
         collection: arrayUrls
     }, function () {
         let status = document.getElementById("status");
@@ -15,7 +15,7 @@ function saveCollection() {
 }
 
 function restoreCollection() {
-    chrome.storage.sync.get(null, function (data) {
+    chrome.storage.local.get(null, function (data) {
         console.log(data)
         if (data && data.collection && data.collection.length > 0) {
             let arrayUrls = data.collection;
