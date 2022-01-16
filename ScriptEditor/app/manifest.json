@@ -1,0 +1,36 @@
+{
+   // id=kjagglmpbbmmkgjnioleopphgjpkgodd
+   "key":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3MKe0yNkuiEFXpiFF+zmzq8p9R3sN0kGBxMVg8Mq+VUk0Magz4JqbuGhMne/1V9JbjkN72Nl2Zx9/+IsaqmcHnV5UI9lEBgZSrEtX2ycZWxcbN0hXVdqC7KRcgOt2j7QWp7HHDS9y4//fAqRa1Zd7+iXMq0nztlO1ufD+C4WikI3+z0BWnunqCcMtV11CwbFYYYulMlFfK6dr78JHQhc/m3LjFoaafDQF095qYqV2cjWnhVzYGyCQM+uZzXDlkk4ERQNN0ASd5MtuNkrbQM7BEA6J2xR4o5z8T47rEsPf7/vz3YznkZc+7vG5NJyI7eVsNbwmLNnsq8NgP/VFoAXpwIDAQAB",
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-script-100.png"
+      },
+      // "default_popup": "html/popup.html",
+      "default_title": "Extension to edit local files"
+   },
+
+   "name": "Script Editor",
+   "short_name": "Editor ",
+   "description": "An extension to edit local files",
+   "icons": {
+      "128": "./icon/icons8-script-100.png"
+   },
+   "homepage_url": "https://github.com/LongNghia/MyExtensions/tree/main/ScriptEditor",
+   "permissions": ["tabs", "*://*/*","nativeMessaging"],
+
+   "content_scripts": [{
+      "js": ["./js/content.js"],
+      "matches": ["*://*/*"],
+      "run_at": "document_start"
+   }],
+
+   "options_page": "./html/option.html",
+
+   "background": {
+      "scripts": ["js/background.js"]
+   },
+   "version": "1.0.0",
+   "default_locale": "en",
+   "author": "longnghia",
+   "manifest_version": 2
+}

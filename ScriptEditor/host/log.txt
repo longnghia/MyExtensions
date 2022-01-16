@@ -1,0 +1,64 @@
+{"text":"ls"}{"text":"ls -d /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/*/"}ls
+date
+ls -d /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/*/
+ls -d /mnt/01D7FA0FB6446CB0/extensions/*/
+ls -d /mnt/01D7FA0FB6446CB0/extensions/*/
+ls -p /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/ | grep -v /
+ls -p /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/ | grep -v /
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+ls  /mnt/01D7FA0FB6446CB0/extensions/
+gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/fimfast.user.js
+ls  /mnt/01D7FA0FB6446CB0/extensions/
+code /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/KeyShortcut
+ls  /mnt/01D7FA0FB6446CB0/extensions/
+code /mnt/01D7FA0FB6446CB0/extensions/KeyShortcut
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+ls  /mnt/01D7FA0FB6446CB0/extensions/
+ls  /mnt/01D7FA0FB6446CB0/extensions/
+ls  /mnt/01D7FA0FB6446CB0/extensions/
+code /mnt/01D7FA0FB6446CB0/extensions/SuperInject
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+code /mnt/01D7FA0FB6446CB0/extensions/38imm.user.js
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+code /mnt/01D7FA0FB6446CB0/extensions/38imm.user.js
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+code /mnt/01D7FA0FB6446CB0/extensions/38imm.user.js
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+code /mnt/01D7FA0FB6446CB0/extensions/blogchiasekienthuc.user.js
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+code /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/[ALL]_Links_Open_ALL_in_NEW_BACKGROUND_Tab.user.js
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/
+code /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/pixiv-get-all.user.js
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//*
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//*
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+code /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/honeyleg.user.js
+ls  /mnt/01D7FA0FB6446CB0/extensions//
+code /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/key &
+ls  /mnt/01D7FA0FB6446CB0/extensions//
+code /mnt/01D7FA0FB6446CB0/extensions/KeyShortcut
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+code /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/pixiv-get-all.user.js
+gedit
+gedit hello.txt
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+code
+code
+gedit
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/didibkk.user.js
+gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/mrcong-to-all-keep.user.js
+code
+gedit
+ls
+code
+
+ls
+pwd
+code
+ls
+gedit
+bash -c code
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/asiansister_full_image_loading.user.js
+gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/asiantolick_full_image_loading.user.js

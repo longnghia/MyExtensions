@@ -2,6 +2,13 @@
 // https://stackoverflow.com/questions/38561136/chrome-extension-to-change-dom-with-a-button-in-extension-popup
 //https://stackoverflow.com/questions/586182/how-to-insert-an-item-into-an-array-at-a-specific-index-javascript
 
+/* 
+sync:
+
+ref.ondata => firebase2local
+local.onchanged => NO (cause looping)
+event => local2firebase
+*/
 
 /* 
 db = {
@@ -149,7 +156,7 @@ if (useFirebase) {
                 chrome.storage.local.getBytesInUse(null, bytes => {
                     if (!bytes) {
                         console.log('[once data]');
-                        syncWithFirebase(db)
+                        firebase2local(db)
                     } else {
                         db = {
                             articles: []
@@ -167,7 +174,7 @@ if (useFirebase) {
                     if (val) {
                         db = val
                     }
-                    if (db) syncWithFirebase(db)
+                    if (db) firebase2local(db)
                 })
 
             chrome.storage.onChanged.addListener(function (changes) {
@@ -219,47 +226,55 @@ if (useFirebase) {
 
 
 chrome.extension.onMessage.addListener(function (message, messageSender, sendResponse) {
-    if (message.action == "add-all") {
-        queryTab(current = false, saveArticles, sendResponse)
-    } else if (message.action == "add-current") {
-        queryTab(current = true, saveArticles, sendResponse)
-    } else if (message.action == "remove") {
-        console.log('received remove message');
-        let index = parseInt(message.index)
-        // console.log(message.index);
-        let deletedItem = db.articles.splice(index, 1)
-        chrome.storage.local.set(db, function () {
-            console.log("removed :" + index, deletedItem[0].title, deletedItem[0]);
-            sendResponse({
-                removedItem: deletedItem[0]
+    switch (message.action) {
+        case "add-all":
+            queryTab(current = false, saveArticles, sendResponse)
+            break;
+        case "add-current":
+            queryTab(current = true, saveArticles, sendResponse)
+            break
+        case "remove":
+            console.log('received remove message');
+            let index = parseInt(message.index)
+            let deletedItem = db.articles.splice(index, 1)
+            chrome.storage.local.set(db, function () {
+                console.log("removed :" + index, deletedItem[0].title, deletedItem[0]);
+                sendResponse({
+                    removedItem: deletedItem[0]
+                })
             })
+            break
+        case 'badge-exist':
+            setBadge('1')
+            return true;
+        case 'save-firebase':
+            local2firebase()
+            break;
+        case 'export-json':
+            save2Json()
+            break;
+        case 'save-mhtml':
+            saveMHTML()
+            break;
+        case 'save-tabs':
+            saveTabs()
+            break;
+        case 'save-groups':
+            saveGroups(message.groups, sendResponse)
+            break;
+        case 'save-import-data':
+            if (useFirebase) {
+                local2firebase()
+            }
+            break;
 
-        })
-    } else if (message.action == 'badge-exist') {
-        setBadge('1')
-        return true;
-    } else if (message.action == 'save-firebase') {
-        syncWithStorage()
-    } else if (message.action == 'export-json') {
-        save2Json()
-    } else if (message.action == 'save-mhtml') {
-        saveMHTML()
-    }
-    else if (message.action == 'save-tabs') {
-        saveTabs()
-    }
-    else if (message.action == 'save-groups') {
-        saveGroups(message.groups, sendResponse)
-    }
-    else if (message.action == 'save-import-data') {
-        if (useFirebase) {
-            syncWithStorage()
-        }
-    }
+        default:
+            break;
 
+    }
 
     // save to firebase after each action finished
-    syncWithStorage()
+    local2firebase()
     return true;
 });
 
@@ -338,7 +353,7 @@ function saveArticles(tabs) {
                 } else {
                     audioSuccess.play()
                     console.log("saved ", db)
-                    syncWithStorage()
+                    local2firebase()
                 }
             });
         }
@@ -438,30 +453,34 @@ function toDataURL(url, callback) {
 
 
 
-function syncWithFirebase(newDb) {
+function firebase2local(newDb) {
+    console.log("[firebase2local] starting...");
+
     if (newDb && typeof (newDb) == 'object' && JSON.stringify(newDb) !== '{}')
         chrome.storage.local.clear(function () {
             chrome.storage.local.set(newDb,
                 function () {
-                    console.log("[syncWithFirebase] success");
+                    console.log("[firebase2local] success");
                 }
             );
         })
     else {
-        console.log('[syncWithFirebase] invalid database!', newDb);
+        console.log('[firebase2local] invalid database!', newDb);
         db = {
             articles: []
         }
     }
 }
 
-function syncWithStorage() {
+function local2firebase() {
+    console.log('[local2firebase] starting...');
+
     chrome.storage.local.get(null, function (data) {
         data && database.ref('read-later').set(data)
             .then(() => {
-                console.log('[syncWithStorage] Data is saved!', data);
+                console.log('[local2firebase] Data is saved!', data);
             }).catch((e) => {
-                console.log('[syncWithStorage] failed.', e);
+                console.log('[local2firebase] failed.', e);
             });
     })
 }
@@ -536,3 +555,4 @@ function saveGroups(groups, callback) {
         callback({ status: 'success' })
     })
 }
+

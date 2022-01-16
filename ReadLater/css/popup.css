@@ -60,6 +60,7 @@ html {
 
 .art-link>img {
     width: 15px;
+    height: 15px;
 }
 
 ol {
@@ -130,6 +131,7 @@ li:hover {
 #count-art {
     color: blueviolet;
     margin: 10px;
+    width: 90px;
 }
 
 .glyphicon:hover {
@@ -156,10 +158,41 @@ div.check-delete.not-show {
 }
 
 
-#container-group{
+.group-item{
+    display:inline-block;
+}
+
+.group-item:hover{
     cursor: pointer;
+    font-weight:600
 }
 #container-group > .group-item{
     margin: 15px;
     border-bottom: solid 1px rgb(70, 70, 70);
+}
+
+
+.remove-group{
+    margin-right: 10px;
+    border: 1px solid rgb(133, 133, 133);
+    opacity:50%;
+    border-radius:30%
+}
+
+.remove-group:hover{
+    border: 1px solid rgb(56, 56, 56);
+    font-weight: 600;
+    cursor: pointer;
+    color:red
+}
+
+.remove-group:hover + .group-item{
+    font-weight: 600;
+    color:red
+}
+
+.group-icons{
+    position: absolute;
+    right: 0;
+    padding-right: 15px;
 }

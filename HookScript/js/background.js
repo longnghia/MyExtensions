@@ -5,7 +5,7 @@ https://stackoverflow.com/questions/3263161/cannot-set-boolean-values-in-localst
 */
 
 var useFirebase = true
-let db = null
+let db = { hooks: [] }
 
 
 /* 
@@ -140,19 +140,24 @@ function start() {
             .then((snapshot) => {
                 const val = snapshot.val();
                 // console.log(val);
-                db = JSON.parse(val)
+                if (val)
+                    db = val
+
                 console.log('[init]', db)
                 chrome.storage.local.getBytesInUse(null, bytes => {
                     if (!bytes) {
-                        syncFirebase(db)
+                        firebase2local(db)
                     }
                 });
                 addBeforeRequestListener()
 
                 database.ref('hook-script')
                     .on('value', (snapshot) => {
-                        db = JSON.parse(snapshot.val())
-                        if (db) syncFirebase(db)
+                        console.log('[onvalue]')
+                        const val = snapshot.val()
+                        if (val)
+                            db = val
+                        if (db) firebase2local(db)
                     })
 
                 chrome.storage.onChanged.addListener(function (changes) {
@@ -162,7 +167,6 @@ function start() {
                         if (data) {
                             db = data;
                             // database.ref("hook-script").set(JSON.stringify(db))
-
                             removeBeforeRequestListener()
                             addBeforeRequestListener()
                         }
@@ -186,9 +190,7 @@ function start() {
         chrome.extension.onMessage.addListener(function (message, messageSender, sendResponse) {
             if (message.action && message.action == "SAVE_HOOKS") {
                 console.log('received savehook message, saving to firebase:');
-
-                database.ref("hook-script").set(JSON.stringify(message.payload))
-
+                database.ref("hook-script").set(message.payload)
             }
         });
     }
@@ -259,18 +261,25 @@ function onBeforeRequestListener(info) {
         console.log("%c[info.url]", logCss, info.url);
     }
     let availbleKey = hasUrl(info.url)
-    if (enabled && availbleKey) {
+    if (enabled && availbleKey > -1) {
         console.log("[onBeforeRequest] has url " + info.url);
-        if (db[availbleKey] && db[availbleKey]["target"] && db[availbleKey]["active"]) {
+        let hook = db.hooks[availbleKey]
+        // for (let i = 0; i < db.hooks.length; i++) {
+        //     if (db.hooks[i]["src"] == availbleKey) {
+        //         hook = db.hooks[i]
+        //         break;
+        //     }
+        // }
+        if (hook && hook["des"] && hook["active"]) {
 
-            if (db[availbleKey]["target"] == "cancel") { //
+            if (hook["des"] == "cancel") { //
                 console.log("%c[cancel]", "color: red", +info.url);
                 setBadge('X')
                 return {
                     cancel: true
                 }
             } else {
-                let target = db[availbleKey]["target"];
+                let target = hook["des"];
                 // if (target.startsWith("js:")) {
                 //     console.log("js target!");
 
@@ -296,12 +305,20 @@ function onBeforeRequestListener(info) {
 chrome.browserAction.onClicked.addListener(toggleEnabled);
 
 function hasUrl(url) {
-    let keys = Object.keys(db)
-    for (let i = 0; i < keys.length; i++) {
-        if (url.match(new RegExp(keys[i])) && url != getChromeUrl(db[keys[i]]["target"]))
-            return keys[i]
-    }
-    return ""
+    if (db)
+        for (let i = 0; i < db.hooks.length; i++) {
+            if (url.match(new RegExp(db.hooks[i]["src"])) && url != getChromeUrl(db.hooks[i]["des"])) {
+                return i;
+            }
+        }
+
+    return -1
+    // let keys = Object.keys(db)
+    // for (let i = 0; i < keys.length; i++) {
+    //     if (url.match(new RegExp(keys[i])) && url != getChromeUrl(db[keys[i]]["target"]))
+    //         return keys[i]
+    // }
+    // return ""
 }
 
 function getChromeUrl(link) {
@@ -327,13 +344,28 @@ function toggleEnabledLog() {
 }
 
 
-function syncFirebase(newDb) {
-    chrome.storage.local.clear(function () {
-        chrome.storage.local.set(newDb,
-            function () {
-                console.log("[setValue] success");
-            }
-        );
+function firebase2local(newDb) {
+    if (newDb) {
+        console.log('[firebase2local] clearing local...')
+        chrome.storage.local.clear(function () {
+            console.log('[firebase2local] setting local...')
+            chrome.storage.local.set(newDb,
+                function () {
+                    console.log("[firebase2local] local successfully set!");
+                }
+            );
+        })
+    }
+}
+
+function local2firebase() {
+    chrome.storage.local.get(null, function (data) {
+        data && database.ref('hook-script').set(data)
+            .then(() => {
+                console.log('[local2firebase] firebase successfully set!', data);
+            }).catch((e) => {
+                console.log('[local2firebase] failed.', e);
+            });
     })
 }
 

@@ -24,7 +24,7 @@ chrome.commands.onCommand.addListener(function (command) {
     }
     /* open selected */
     else if (command == "open-in-bg" || command == "open-in-fg") {
-        openSelected()
+        openSelected(command)
     }
     else if (command == "fakeCtrlW") {
         doFakeCtrW()
@@ -135,7 +135,7 @@ function isURL(string) {
     // return url.protocol === "http:" || url.protocol === "https:";
 }
 
-function openSelected() {
+function openSelected(command) {
     chrome.tabs.query({
         active: true,
         currentWindow: true

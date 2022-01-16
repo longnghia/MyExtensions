@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+ * Copyright 2013 The Chromium Authors. All rights reserved.  Use of this
+ * source code is governed by a BSD-style license that can be found in the
+ * LICENSE file.
+-->
+
+<html>
+
+<head>
+  <style>
+    li {
+      cursor: pointer;
+    }
+
+    li:hover {
+      font-weight: 600;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    input{
+      outline: none;
+    }
+
+  </style>
+</head>
+
+<body>
+  <button id='connect-button'>Connect</button>
+
+  <div id="client">
+    <input id='input-text' type='text' />
+    <button id='send-message-button'>Send</button>
+
+    <br>
+    <button id="ls">ls user scripts</button>
+    <button id="ls_extensions">ls extensions</button>
+    <br>
+    <div>pwd=<span style="color: darkred;">/mnt/01D7FA0FB6446CB0/extensions/ScriptEditor/host</span></div>
+    <input type="text" id="search">
+
+    <div id='response'>
+    </div>
+  </div>
+
+  <script src='../js/option.js'></script>
+
+</body>
+
+</html>

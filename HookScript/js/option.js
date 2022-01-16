@@ -1,11 +1,23 @@
 let db2 = {
-    'https://glyph.medium.com/css/e/sr/latin/e/ssr/latin/e/ssb/latin/m2.css': 'assets/css/medium.css',
-    'https://s.gr-assets.com/assets/gr/fonts-e256f84093cc13b27f5b82343398031a.css': 'assets/css/goodreads.css',
-    '.+sayHi.js': '',
-    'https://91porn.com/videojs/nuevo.min.js': 'https://cdn.jsdelivr.net/gh/LongNghia/Hook-Script-Resources/nuevo.min.js'
+    hooks: [
+        {
+            "src": "506957406-KixCss_ltr.css",
+            "active": false,
+            "des": "http://localhost/assests/ggdoc.css"
+        },
+        {
+            "src": "91porn.com/videojs/nuevo.min.js",
+            "active": true,
+            "des": "https://cdn.jsdelivr.net/gh/LongNghia/Hook-Script-Resources/nuevo.min.js"
+        },
+        {
+            "src": "https://ads-cdn.fptplay.net/",
+            "active": true,
+            "des": "cancel"
+        }
+    ]
 }
-
-let db = null
+let db = { hooks: [] }
 
 let submitBtn, toast, addBtn, hooksContainer
 
@@ -48,10 +60,15 @@ window.addEventListener("keydown",
 );
 
 function initHooks() {
-    let hooksKey = Object.keys(db)
+    // let hooksKey = Object.keys(db)
 
-    for (let i = 0; i < hooksKey.length; i++) {
-        addHook(null, hooksKey[i], db[hooksKey[i]]["target"], db[hooksKey[i]]["active"]) //event=null
+    // for (let i = 0; i < hooksKey.length; i++) {
+    //     addHook(null, hooksKey[i], db[hooksKey[i]]["target"], db[hooksKey[i]]["active"]) //event=null
+    // }
+    if (!db.hooks.length)
+        return
+    for (let i = 0; i < db.hooks.length; i++) {
+        addHook(null, db.hooks[i]["src"], db.hooks[i]["des"], db.hooks[i]["active"]) //event=null
     }
 }
 
@@ -70,7 +87,7 @@ function hookRemoveListener() {
 
 function savehooks(event) {
     let hooks = document.getElementsByClassName("hook");
-    let newDb = {}
+    let newHooks = []
     for (let i = 0; i < hooks.length; i++) {
         let hookSrc = hooks[i].querySelector(".hook-src")
         let hookDes = hooks[i].querySelector(".hook-des")
@@ -79,35 +96,46 @@ function savehooks(event) {
             "target": hookDes.textContent,
             "active": hookActive.checked
         }
-
-        newDb[hookSrc.textContent] = curTarget
-        // newDb[String(hookSrc.textContent)] = curTarget
-    }
-    console.log(newDb);
-    chrome.storage.local.clear(function () {
-        if (chrome.runtime.lastError) {
-            setToast("Save failed!!", 2000)
-        } else {
-            setValue(newDb).then(res => console.log(res))
-
-            chrome.runtime.sendMessage({
-                action: 'SAVE_HOOKS',
-                payload: newDb
-            })
-
-            setToast("saved!")
+        let hook = {
+            src: hookSrc.textContent,
+            des: hookDes.textContent,
+            active: hookActive.checked
         }
-    })
+
+        newHooks.push(hook)
+    }
+    console.log("new db: ", newHooks);
+    db.hooks = newHooks,
+        chrome.storage.local.clear(function () {
+            if (chrome.runtime.lastError) {
+                setToast("Save failed!!", 2000)
+            } else {
+                setValue(db).then(res => console.log(res))
+
+                chrome.runtime.sendMessage({
+                    action: 'SAVE_HOOKS',
+                    payload: db
+                })
+
+                setToast("saved!")
+            }
+        })
 
 }
 
 function removeHook(key) {
-    chrome.storage.local.remove([key], function () {
-        var error = chrome.runtime.lastError;
-        if (error) {
-            setToast(error, 2000)
-        }
-    })
+    let hooks = db.hooks.filter(hook => hook.src != key)
+    db.hooks = hooks
+
+    // chrome.storage.local.remove([key], function () {
+    //     var error = chrome.runtime.lastError;
+    //     if (error) {
+    //         setToast(error, 2000)
+    //     }
+    // })
+
+    setValue(db).then(res => console.log(res))
+
 }
 
 function setToast(text, timeout = 1500) {

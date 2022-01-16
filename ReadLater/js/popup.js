@@ -12,6 +12,8 @@ var db = null;
 let toast = document.getElementById("toast")
 let newValue, oldValue
 let toolbar = document.getElementById("toolbar")
+let enableDelete = true;
+let timeout = null
 
 document.getElementById("add-current").onclick = addCurrent
 document.getElementById("add-all").onclick = addAll
@@ -27,6 +29,7 @@ document.getElementById("toolbar-toggle").onclick = toggleToolbar
 document.getElementById("group-toggle").onclick = toggleGroup
 document.getElementById("group-editor").onclick = openGroupEditor
 document.getElementById("copy-highlighted").onclick = copyHighlighted
+document.getElementById("checkbox-enable-delete").onchange = toggleCheckbox
 /* 
 db = {
     acticles: [],
@@ -124,7 +127,7 @@ function updateContent() {
                     event.preventDefault()
                     event.stopPropagation()
                     let link = this.href
-                    this.querySelector(".glyphicon.glyphicon-remove").click()
+                    enableDelete && this.querySelector(".glyphicon.glyphicon-remove").click()
                     chrome.tabs.create({
                         url: link,
                         active: false
@@ -145,7 +148,7 @@ function updateContent() {
                 lazyloadThrottleTimeout = setTimeout(function () {
                     var scrollTop = window.pageYOffset; //scrollY
                     lazyloadImages.forEach(function (img) {
-                        if (img.offsetTop < (window.innerHeight * preload+ scrollTop)) {
+                        if (img.offsetTop < (window.innerHeight * preload + scrollTop)) {
                             img.src = img.dataset.src;
                             img.classList.remove('lazy');
                         }
@@ -265,9 +268,9 @@ function remove(index, htmlIndex) {
     }, function (response) {
         if (response.removedItem) {
             console.log("[response] removed item ", response.removedItem)
-            setToast(
-                "[Removed] " + response.removedItem.title
-            )
+            // setToast(
+            //     "[Removed] " + response.removedItem.title
+            // )
         } else {
             Swal.fire(
                 'Error',
@@ -412,13 +415,14 @@ function download(data, filename, type) {
 
 function doSearch(event) {
     searchTerm = event.target.value ? RegExp(event.target.value, 'i') : null
-    updateContent()
-    // if (!ul.style.display == 'none') {
-    //     // main section
-    // } else {
-    //     // group section
 
-    // }
+    if (timeout) {
+        clearTimeout(timeout)
+    }
+
+    timeout = setTimeout(() => {
+        updateContent()
+    }, 500);
 }
 
 function setToast(text, timeout = 2500) {
@@ -469,17 +473,39 @@ function initGroups() {
     if (db && db.groups) {
         console.log('initing group...');
 
+        // span 'x' remove group
+        let baseSpan = document.createElement('span')
+        baseSpan.className = "remove-group"
+        baseSpan.textContent = 'x'
+        let baseDiv = document.createElement('div');
+        baseDiv.className = "group-item";
+
+
         for (let i = 0; i < db.groups.length; i++) {
-            let div = document.createElement('div');
-            div.className = "group-item";
+            let divContainer = document.createElement('div');
             let group = db.groups[i]
+
+            let span = baseSpan.cloneNode(true)
+            divContainer.appendChild(span)
+            span.onclick = function (e) {
+                removeGroup(group.name)
+            }
+
+            let div = baseDiv.cloneNode(true)
+            divContainer.appendChild(div)
+
             let html = `${group.name}`;
-            group.urls.forEach(url => {
-                let host = new URL(url).origin || '';
-                html += `
-                <img src="chrome://favicon/size/16@2x/${host}" width="15">
-                    `
-            })
+            let spanIcons=''
+            for (let i = 0; i < group.urls.length; i++) {
+                if (i < 5) {  //take 5 icons only
+                    let url = group.urls[i]
+                    let host = new URL(url).origin || '';
+                    spanIcons += `
+                    <img src="chrome://favicon/size/16@2x/${host}" width="15">
+                        `
+                }
+            }
+            html+=`<span class='group-icons'>${spanIcons}</span>`
             div.innerHTML = html;
             div.onclick = function (e) {
                 group.urls.forEach(url => {
@@ -489,9 +515,27 @@ function initGroups() {
                     })
                 })
             }
-            containerGroup.appendChild(div)
+            containerGroup.appendChild(divContainer)
         }
     }
+}
+
+function removeGroup(name) {
+    let newGroups = db.groups.filter(group => group.name != name)
+    db.groups = newGroups
+    chrome.runtime.sendMessage({
+        "action": "save-groups",
+        "groups": db.groups
+    }, function (response) {
+        if (response.status == 'success') {
+            showToast('Saved!!')
+        } else {
+            showToast('FAIL!!', 'error', false)
+            console.log('save false, watch background.js')
+        }
+
+    })
+    initGroups()
 }
 
 function openGroupEditor() {
@@ -532,4 +576,9 @@ function showToast(text = 'success!', icon = 'success') {
         icon: icon,
         title: text
     })
+}
+
+
+function toggleCheckbox() {
+    enableDelete = this.checked
 }
