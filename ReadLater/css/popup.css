@@ -43,8 +43,12 @@ html {
 #search{
     outline: none;
     border-width: 0 1px 1px 0;
+    border-color: #9e80bb;
     margin: 10px;
     color: blueviolet;
+    border-radius: 5px;
+    height: 70%;
+    width: 70%;
 }
 
 .hidden {
@@ -69,6 +73,7 @@ ol {
 
 li {
     margin: 0 15px 15px 15px;
+    border-radius:5px;
 }
 
 li>div {
@@ -78,7 +83,7 @@ li>div {
 
 
 li:hover {
-    background-color: antiquewhite;
+    background-color: #8a2be259
 
 }
 
@@ -196,3 +201,16 @@ div.check-delete.not-show {
     right: 0;
     padding-right: 15px;
 }
+
+button{
+    border-radius:5px;
+    border-width:1px;
+    outline:none;
+    border-color:blueviolet
+
+}
+
+button:hover{
+    background-color:#8a2be259;
+}
+

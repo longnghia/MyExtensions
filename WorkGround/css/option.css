@@ -1,0 +1,73 @@
+.omnibox {
+    display: flex;
+    margin-bottom: 10px;
+    font-size: small;
+}
+
+.omnibox-src {
+    width: 30%;
+    padding: 15px;
+    min-width: 150px;
+    border-bottom: 1px blue solid;
+    border-right: 1px blue solid;
+    /* overflow: scroll; */
+    /* white-space: nowrap; */
+    overflow: hidden;
+    height: 20px;
+    color: rgb(77, 77, 77);
+}
+
+.omnibox-des {
+    width: 50%;
+    padding: 15px;
+
+    min-width: 150px;
+    border-bottom: 1px rgb(12, 12, 80) solid;
+    overflow: hidden;
+    height: 20px;
+}
+
+
+
+.omnibox-remove {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    padding: 9px;
+    height: 38px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+/* Darker background on mouse-over */
+.omnibox-remove:hover {
+    background-color: RoyalBlue;
+}
+
+#toast {
+    display: block;
+    height: 30px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    color: red
+}
+
+#toolbox {
+    position: sticky;
+    border-bottom: 1px red solid;
+    padding-bottom:5px;
+    margin-bottom:15px;
+    width: 50%
+}
+
+[contenteditable] {
+    outline: 0px solid transparent;
+}
+
+#background-container{
+    margin-bottom: 50px;
+}
+#background {
+    margin: 10px 0 10px 0;
+}

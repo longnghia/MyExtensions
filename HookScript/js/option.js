@@ -67,7 +67,7 @@ function initHooks() {
     // }
     if (!db.hooks.length)
         return
-    for (let i = 0; i < db.hooks.length; i++) {
+    for (let i = db.hooks.length - 1; i >= 0; i--) {
         addHook(null, db.hooks[i]["src"], db.hooks[i]["des"], db.hooks[i]["active"]) //event=null
     }
 }

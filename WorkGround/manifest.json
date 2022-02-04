@@ -3,7 +3,7 @@
       "default_icon": {
          "128": "./icon/icons8-list-100.png"
       },
-      "default_popup": "html/popup.html",
+      // "default_popup": "html/popup.html",
       "default_title": "Work Ground"
    },
    "chrome_url_overrides" : {

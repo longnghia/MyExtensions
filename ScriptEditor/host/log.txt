@@ -62,3 +62,10 @@ bash -c code
 ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
 gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/asiansister_full_image_loading.user.js
 gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/asiantolick_full_image_loading.user.js
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/add_sort_menu.user.js
+ls  /mnt/01D7FA0FB6446CB0/extensions//
+ls /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts//
+gedit /mnt/01D7FA0FB6446CB0/scripts/MyUserScripts/add_sort_menu.user.js
+code /mnt/01D7FA0FB6446CB0/extensions/README.MD

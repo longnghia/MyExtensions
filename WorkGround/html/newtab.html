@@ -15,22 +15,51 @@
         }
 
         body {
-            background: url(https://quangcaosieutoc.com/style/images/loader.gif) no-repeat center center
+            background: url(../icon/loader.gif) no-repeat center center
         }
 
+        #container {
+            background-color: #e2ffff85;
+            margin-top: 100px;
+            margin-left: 100px;
 
+            /* width: 100%; */
+            position: absolute;
+            /* height: 100%; */
+            /* margin: 192px; */
+            border-radius: 10px;
+            padding: 33px;
+            z-index: 999;
+            opacity: 0.9;
+
+            display: none;
+
+        }
+
+        #videoContainer {
+            user-select: none;
+        }
     </style>
     <!-- <link rel="stylesheet" href="../css/newtab.css"> -->
 </head>
 
 <body>
-    <video autoplay muted loop id="myVideo" >
-        <!-- <source src="../mylivewallpapers.com-Boba-Tea-Break.mp4" type="video/mp4"> -->
-        <!-- <source src="../mylivewallpapers.com-Butterfly-Anime-Girl.mp4" type="video/mp4"> -->
-        <source src="../mylivewallpapers.com-Yellow-Space-Suit-Girl.mp4" type="video/mp4">
-    </video>
+    <div id="container">
+    </div>
+
+    <div id="videoContainer">
+        <video autoplay muted loop id="myVideo">
+            <!-- <source src="../mylivewallpapers.com-Boba-Tea-Break.mp4" type="video/mp4"> -->
+            <!-- <source src="../mylivewallpapers.com-Butterfly-Anime-Girl.mp4" type="video/mp4"> -->
+            <!-- <source src="../mylivewallpapers.com-Yellow-Space-Suit-Girl.mp4" type="video/mp4"> -->
+        </video>
+    </div>
+
 
     <script src="../js/video.js"></script>
+
+    <!-- paste stuff -->
+    <script src="../js/paste.js"></script>
 
 </body>
 
