@@ -17,6 +17,7 @@ let timeout = null
 
 document.getElementById("add-current").onclick = addCurrent
 document.getElementById("add-all").onclick = addAll
+document.getElementById("add-highlighted").onclick = addHighlighted
 document.getElementById("bulk-delete").onclick = showCheckBox
 document.getElementById("btnDelete").onclick = bulkDelete
 document.getElementById("save-all").onclick = saveAll
@@ -76,98 +77,114 @@ function updateContent() {
             chrome.browserAction.setBadgeText({
                 text: '' + db.articles.length
             })
-            if (searchTerm) {
-                db.articles = db.articles.filter(function (tab, index) {
-                    if (tab.title.match(searchTerm) || tab.url.match(searchTerm)) {
-                        indexAfterFilter.push(index)
-                        return true
+            // if (searchTerm) {
+            // db.articles = db.articles.filter(function (tab, index) {
+            //     if (tab.title.match(searchTerm) || tab.url.match(searchTerm)) {
+            //         indexAfterFilter.push(index)
+            //         return true
+            //     }
+            // })
+            // let count = db.articles.length
+            // countArt.textContent = count + (count > 1 ? " article" : " articles")
+            // if (db && db.articles) {
+            //     for (let i = 0; i < count; i++) {
+            //         let li = createListItem(db.articles[i], indexAfterFilter[i]);
+            //         ul.appendChild(li)
+            //     }
+            // }
+            // let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
+            // for (let i = 0; i < anchors.length; i++) {
+            //     let anchor = anchors[i];
+            //     anchor.onclick = function (event) {
+            //         event.preventDefault()
+            //         event.stopPropagation()
+            //         remove(indexAfterFilter[i], i);
+            //     }
+            // }
+            // } else {
+
+            let count = db.articles.length
+
+            if (db && db.articles) {
+                for (let i = 0; i < count; i++) {
+                    let li = createListItem(db.articles[i], i);
+                    if (searchTerm) {
+                        if (!li.textContent.match(searchTerm)) {
+                            li.classList.add("hidden")
+                        } else {
+                            li.classList.remove("hidden")
+                        }
                     }
-                })
-                let count = db.articles.length
-                countArt.innerText = count + (count > 1 ? " article" : " articles")
-                if (db && db.articles) {
-                    for (let i = 0; i < count; i++) {
-                        let li = createListItem(db.articles[i], indexAfterFilter[i]);
-                        ul.appendChild(li)
-                    }
-                }
-                let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
-                for (let i = 0; i < anchors.length; i++) {
-                    let anchor = anchors[i];
-                    anchor.onclick = function (event) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                        remove(indexAfterFilter[i], i);
-                    }
-                }
-            } else {
-                let count = db.articles.length
-                countArt.innerText = count + (count > 1 ? " article" : " articles")
-                if (db && db.articles) {
-                    for (let i = 0; i < count; i++) {
-                        let li = createListItem(db.articles[i], i);
-                        ul.appendChild(li)
-                    }
-                }
-                let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
-                for (let i = 0; i < anchors.length; i++) {
-                    let anchor = anchors[i];
-                    anchor.onclick = function (event) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                        remove(i);
-                    }
+                    ul.appendChild(li)
                 }
             }
-            //open link and remove
-            let li = document.getElementsByClassName("art-link");
-            for (let i = 0; i < li.length; i++) {
-                let anchor = li[i];
+
+            /* count art */
+            let li = document.getElementsByClassName("list-art hidden");
+            count = count - li.length
+            countArt.textContent = count + (count > 1 ? " article" : " articles")
+            countArt.textContent = count + (count > 1 ? " article" : " articles")
+
+            let anchors = document.getElementsByClassName("glyphicon glyphicon-remove");
+            for (let i = 0; i < anchors.length; i++) {
+                let anchor = anchors[i];
                 anchor.onclick = function (event) {
                     event.preventDefault()
                     event.stopPropagation()
-                    let link = this.href
-                    enableDelete && this.querySelector(".glyphicon.glyphicon-remove").click()
-                    chrome.tabs.create({
-                        url: link,
-                        active: false
-                    })
+                    remove(i);
                 }
             }
-
-            // lazy load------------------
-            // --> dramatically improve loading speed!!
-            var lazyloadImages = document.querySelectorAll("img.lazy");
-            var lazyloadThrottleTimeout;
-            const preload = 1.5 // a window and a half
-            function lazyload() {
-                if (lazyloadThrottleTimeout) {
-                    clearTimeout(lazyloadThrottleTimeout);
-                }
-
-                lazyloadThrottleTimeout = setTimeout(function () {
-                    var scrollTop = window.pageYOffset; //scrollY
-                    lazyloadImages.forEach(function (img) {
-                        if (img.offsetTop < (window.innerHeight * preload + scrollTop)) {
-                            img.src = img.dataset.src;
-                            img.classList.remove('lazy');
-                        }
-                    });
-                    if (lazyloadImages.length == 0) {
-                        document.removeEventListener("scroll", lazyload);
-                    }
-                }, 20);
+        }
+        //open link and remove
+        let li = document.getElementsByClassName("art-link");
+        for (let i = 0; i < li.length; i++) {
+            let anchor = li[i];
+            anchor.onclick = function (event) {
+                event.preventDefault()
+                event.stopPropagation()
+                let link = this.href
+                enableDelete && this.querySelector(".glyphicon.glyphicon-remove").click()
+                chrome.tabs.create({
+                    url: link,
+                    active: false
+                })
             }
-            lazyload()
-            document.addEventListener("scroll", lazyload);
-            // -------------
         }
 
+
+        lazyload()
+        document.addEventListener("scroll", lazyload);
+        // -------------
         // groups
         // initGroups();
 
     })
 
+}
+
+// lazy load------------------
+// --> dramatically improve loading speed!!
+var lazyloadThrottleTimeout;
+const preload = 1.5 // a window and a half
+
+function lazyload() {
+    var lazyloadImages = document.querySelectorAll("img.lazy");
+    if (lazyloadThrottleTimeout) {
+        clearTimeout(lazyloadThrottleTimeout);
+    }
+
+    lazyloadThrottleTimeout = setTimeout(function () {
+        var scrollTop = window.pageYOffset; //scrollY
+        lazyloadImages.forEach(function (img) {
+            if (img.offsetTop < (window.innerHeight * preload + scrollTop)) {
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+            }
+        });
+        if (lazyloadImages.length == 0) {
+            document.removeEventListener("scroll", lazyload);
+        }
+    }, 20);
 }
 
 /* 
@@ -197,6 +214,10 @@ window.addEventListener("keydown",
                     event.preventDefault();
                     saveAll()
                     break;
+                case 'f': // search
+                    event.preventDefault();
+                    document.getElementById("search").focus()
+                    break;
                 default:
                     return;
             }
@@ -209,10 +230,11 @@ function createListItem({
     title,
     url,
     host
-}, index) {
+}, index, hidden = false) {
     let li = document.createElement("li");
     li.className = "list-art";
-
+    if (hidden)
+        li.classList.add(hidden)
     // use base64 data
     // if (db.icons && db.icons[host]) {
     //     icon = db.icons[host]
@@ -291,6 +313,17 @@ function addAll() {
     changeBrowserActionIcon()
     chrome.runtime.sendMessage({
         "action": "add-all",
+    },
+        function (response) {
+            addToList(response)
+        }
+    )
+}
+
+function addHighlighted() {
+    changeBrowserActionIcon()
+    chrome.runtime.sendMessage({
+        "action": "add-highlighted",
     },
         function (response) {
             addToList(response)
@@ -421,8 +454,34 @@ function doSearch(event) {
     }
 
     timeout = setTimeout(() => {
-        updateContent()
+        // updateContent()
+        filterSearch()
     }, 500);
+}
+
+function filterSearch() {
+    let li = document.getElementsByClassName("list-art");
+    let count = li.length
+    if (searchTerm) {
+        for (let i = 0; i < li.length; i++) {
+            if (!li[i].textContent.match(searchTerm)) {
+                li[i].classList.add("hidden")
+            } else {
+                li[i].classList.remove("hidden")
+            }
+        }
+    } else {
+        for (let i = 0; i < li.length; i++) {
+            li[i].classList.remove("hidden")
+        }
+    }
+
+    li = document.getElementsByClassName("list-art hidden");
+    count = count - li.length
+    countArt.textContent = count + (count > 1 ? " article" : " articles")
+
+    lazyload()
+
 }
 
 function setToast(text, timeout = 2500) {
@@ -495,7 +554,7 @@ function initGroups() {
             divContainer.appendChild(div)
 
             let html = `${group.name}`;
-            let spanIcons=''
+            let spanIcons = ''
             for (let i = 0; i < group.urls.length; i++) {
                 if (i < 5) {  //take 5 icons only
                     let url = group.urls[i]
@@ -505,7 +564,7 @@ function initGroups() {
                         `
                 }
             }
-            html+=`<span class='group-icons'>${spanIcons}</span>`
+            html += `<span class='group-icons'>${spanIcons}</span>`
             div.innerHTML = html;
             div.onclick = function (e) {
                 group.urls.forEach(url => {

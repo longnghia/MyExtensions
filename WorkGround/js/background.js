@@ -16,6 +16,7 @@ const db2 = {
     background: ["../mylivewallpapers.com-Boba-Tea-Break.mp4", "../mylivewallpapers.com-Butterfly-Anime-Girl.mp4", "../mylivewallpapers.com-Samurai-Girl-Blade-4K.mp4", "../mylivewallpapers.com-Yellow-Space-Suit-Girl.mp4"]
 
 }
+
 let db = { omniboxs: [], background: [] }
 chrome.omnibox.onInputEntered.addListener(function (text) {
     let newURL = "https://google.com"
@@ -25,8 +26,9 @@ chrome.omnibox.onInputEntered.addListener(function (text) {
             if (box.src == text)
                 newURL = box.des;
         })
-        chrome.tabs.create({
-            url: newURL
+
+        chrome.tabs.update({
+            url: newURL,
         });
     })
 });
@@ -65,7 +67,7 @@ fetch("data.txt")
 
 /* popup */
 chrome.browserAction.onClicked.addListener(
-    function(){
+    function () {
         // chrome.tabs.create(chrome.extension)
         chrome.runtime.openOptionsPage()
     }
@@ -85,3 +87,9 @@ function getValue(key = null) {
         });
     });
 };
+
+async function getCurrentTab() {
+    let queryOptions = { active: true, currentWindow: true };
+    let [tab] = await chrome.tabs.query(queryOptions);
+    return tab;
+}

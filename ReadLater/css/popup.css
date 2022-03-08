@@ -51,6 +51,12 @@ html {
     width: 70%;
 }
 
+#search:focus{
+    border-color: blueviolet;
+    border-width: 0 2px 2px 0;
+
+}
+
 .hidden {
     display: none;
 }

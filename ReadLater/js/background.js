@@ -41,6 +41,19 @@ var articleSample = {
     url: "url"
 }
 
+const queryTabOptions = {
+    activeTab: {
+        currentWindow: true,
+        active: true
+    },
+    allTabs: {
+        currentWindow: true,
+    },
+    highlightedTab: {
+        highlighted: true,
+        currentWindow: true,
+    }
+}
 var useFirebase = true
 
 // not work with mp3
@@ -228,11 +241,14 @@ if (useFirebase) {
 chrome.extension.onMessage.addListener(function (message, messageSender, sendResponse) {
     switch (message.action) {
         case "add-all":
-            queryTab(current = false, saveArticles, sendResponse)
+            queryTab(queryTabOptions.allTabs, saveArticles, sendResponse)
             break;
         case "add-current":
-            queryTab(current = true, saveArticles, sendResponse)
-            break
+            queryTab(queryTabOptions.activeTab, saveArticles, sendResponse)
+            break;
+        case "add-highlighted":
+            queryTab(queryTabOptions.highlightedTab, saveArticles, sendResponse)
+            break;
         case "remove":
             console.log('received remove message');
             let index = parseInt(message.index)
@@ -290,7 +306,7 @@ chrome.extension.onMessage.addListener(function (message, messageSender, sendRes
 function setCommands() {
     chrome.commands.onCommand.addListener((command) => {
         if (command == "save-this-tab") {
-            queryTab(current = true, saveArticles)
+            queryTab(queryTabOptions.activeTab, saveArticles)
             chrome.browserAction.setIcon({
                 path: "../icon/icons8-reading-100-hotkey.png"
             });
@@ -310,29 +326,19 @@ function setCommands() {
     })
 }
 
-function queryTab(current = true, callback, sendResponse) {
-    let option = current ? {
-        currentWindow: true,
-        active: true
-    } : {
-        currentWindow: true,
-    }
+function queryTab(option, callback, sendResponse) {
     chrome.tabs.query(option, function (tabs) {
         console.log('got  tabs', tabs);
         if (callback) {
             callback(tabs)
         }
+
         if (sendResponse) {
             let response = [];
-            if (current)
-                response = [getArticle(tabs[0])]
-            else {
-                tabs.forEach(tab => {
-                    let obj = getArticle(tab)
-                    response.push(obj)
-                })
-            }
-
+            tabs.forEach(tab => {
+                let obj = getArticle(tab)
+                response.push(obj)
+            })
             sendResponse(response)
         }
     });
@@ -383,6 +389,9 @@ function saveArticles(tabs) {
     })
 }
 
+/* 
+return {icon, title, url, host}
+*/
 function getArticle(tab) {
     if (tab) {
         if (!tab.url ||

@@ -1,6 +1,7 @@
 /* 
 https://stackoverflow.com/questions/4129102/html5-video-dimensions
 */
+var db;
 var vid = document.getElementById("myVideo");
 vid.addEventListener("loadedmetadata", function (e) {
     var width = this.videoWidth,
@@ -31,7 +32,9 @@ if (localStorage["background"]) {
     })
 } else {
     console.log("[WG] src not found");
-
-    vid.src = chrome.extension.getURL("mylivewallpapers.com-Yellow-Space-Suit-Girl.mp4")
+    chrome.storage.local.get(null,function(data){
+        db = data
+        vid.src = chrome.extension.getURL(db.background[0])
+    })
 }
 
