@@ -193,6 +193,18 @@ function start() {
                 database.ref("hook-script").set(message.payload)
             }
         });
+
+        /* delete fbclid ... */
+        chrome.webRequest.onBeforeRequest.addListener(
+            stripBadQueryParams,
+            {
+                // Filters: Match all HTTP and HTTPS URLs.
+                urls: ["http://*/*", "https://*/*"],
+                types: ["main_frame", "sub_frame", "ping"]
+            },
+            ["blocking"]
+        );
+
     }
 
 }
@@ -287,7 +299,7 @@ function onBeforeRequestListener(info) {
                 //     target = e
                 //     console.log("[new target]: ", target)
                 // }
-                console.log("%c[redirect]", "color: red", "from " + info.url + " to " + target);
+                console.log("%c[redirected]", "color: red", "from " + info.url + " to " + target);
                 setBadge('~>')
                 return {
                     redirectUrl: getChromeUrl(target)
@@ -379,4 +391,22 @@ function setBadge(text) {
             text: text
         });
     })
+}
+
+function stripBadQueryParams(request) {
+    const targetQueryParams = ["ef_id", "s_kwcid", "_bta_tid", "_bta_c", "dm_i", "fb_action_ids", "fb_action_types", "fb_source", "fbclid", "utm_source", "utm_campaign", "utm_medium", "utm_expid", "utm_term", "utm_content", "_ga", "gclid", "campaignid", "adgroupid", "adid", "_gl", "gclsrc", "gdfms", "gdftrk", "gdffi", "_ke", "trk_contact", "trk_msg", "trk_module", "trk_sid", "mc_cid", "mc_eid", "mkwid", "pcrid", "mtm_source", "mtm_medium", "mtm_campaign", "mtm_keyword", "mtm_cid", "mtm_content", "msclkid", "epik", "pp", "pk_source", "pk_medium", "pk_campaign", "pk_keyword", "pk_cid", "pk_content", "redirect_log_mongo_id", "redirect_mongo_id", "sb_referer_host"];
+
+    let requestedUrl = new URL(request.url);
+    let match = false;
+
+    targetQueryParams.forEach(name => {
+        if (requestedUrl.searchParams.has(name)) {
+            requestedUrl.searchParams.delete(name);
+            match = true;
+            console.log('[stripBadQueryParams] catched bad query: %c' + request.url, 'color:orange');
+        }
+    });
+
+    // return the stripped URL if a match is found, pass the URL on otherwise as normal (cancel: false)
+    return match ? { redirectUrl: requestedUrl.href } : { cancel: false };
 }
