@@ -3,45 +3,56 @@ let ulCdn = document.querySelector("#div-cdn div.list_cdns")
 let ulScript = document.querySelector("#div-script div.list_scripts")
 let divCdn = document.getElementById("div-cdn")
 let divCss = document.getElementById("div-css")
+let divScript = document.getElementById("div-script")
+let toolbar = document.getElementById("tool-bar")
+
+/* navigate menu */
+let listMenu = ["div-cdn", "div-css", "div-script"];
+Array.from(toolbar.querySelectorAll(".tool-bar-section")).forEach(section => {
+    section.addEventListener("click", function (event) {
+        let menu = this.dataset.menu
+
+        console.log(menu + " clicked");
+
+        listMenu.forEach((item, index) => {
+            if (item == menu) {
+                document.getElementById(item).classList.remove("hidden")
+            }
+            else {
+                document.getElementById(item).classList.add("hidden")
+            }
+        })
+    })
+})
+toolbar.querySelector(".tool-bar-section").click()
 
 
-/* let db = {
-    scripts: {
-        "pin_get": {
-            name: "pin get",
-            cdn: ["bootstrap", "jquery"],
-            script: "function a(){console.log('hello from function a')}"
-        },
-        "portal": {
-            name: "portal",
-            cdn: [],
-            script: ""
-        }
-    },
-    cdns: {
-        "bootstrap": [
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css",
-            "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"
-        ],
-        "jquery": ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"]
-    },
-    CSSs: [
-        {
-            "name": "viblo",
-            "match": "https://viblo.com",
-            "css": "h1{font-size: 25px;color: red !important;}"
-        },
-        {
-            "name": "englishtips",
-            "match": "http://englishtips.org/",
-            "css": "h1{font-size: 25px;color: red !important;}"
-        }
-    ]
-}
- */
+let db2 = {
+    dbCSSs: [{
+        name: "viblo",
+        match: "https://viblo.com",
+        css: "h1{font-size: 25px;color: red !important;}"
+    }],
+    dbCdns: [{
+        name: "axios",
+        cdns: ["https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"]
+    }, {
+        name: "jquery",
+        cdns: ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"]
+    }
+    ],
+    dbScripts:
+        [{
+            name: "gpa",
+            cdns: ["jquery", "axios"],
+            script: "console.log('hi')"
+        }]
+};
+
 let db = {
-    scripts: {},
-    cdns: {}
+    dbScripts: [],
+    dbCdns: [],
+    dbCSSs: []
 }
 
 chrome.storage.local.get(db, function (data) {
@@ -49,16 +60,17 @@ chrome.storage.local.get(db, function (data) {
     db = data;
 
     let {
-        scripts,
-        cdns
+        dbScripts,
+        dbCdns,
+        dbCSSs
     } = db
 
     if (divCdn) {
         let btnEdit = document.getElementById("btn-edit-cdn")
         btnEdit.addEventListener("click", function (event) {
             event.stopPropagation()
-            console.log("edit clicked")
-            let url = chrome.extension.getURL("../html/option.html") + '#editcdn'
+            console.log("edit cdn clicked")
+            let url = chrome.extension.getURL("/html/option.html") + '#editcdn'
             // window.open(url)
             chrome.tabs.create({
                 url
@@ -66,17 +78,18 @@ chrome.storage.local.get(db, function (data) {
 
         })
     }
-    Object.keys(cdns).forEach(key => {
+
+    dbCdns && dbCdns.forEach((item, index) => {
         let div = document.createElement("div")
         div.className = "cdn_wrapper"
         let cdnUrls = ''
-        cdns[key].forEach(url => {
+        item.cdns.forEach(url => {
             cdnUrls += `
         <div class="cdn-url">${url}</div>
         `
         })
         let html = `
-    <div class="cdn-name">${key}</div>
+    <div class="cdn-name">${item.name}</div>
     ${cdnUrls}
     `
         div.innerHTML = html;
@@ -88,7 +101,7 @@ chrome.storage.local.get(db, function (data) {
             }, tabs => {
                 tabs[0] && chrome.tabs.sendMessage(tabs[0].id, {
                     action: "inject-cdn",
-                    payload: key
+                    payload: index
                 })
             })
         })
@@ -97,12 +110,13 @@ chrome.storage.local.get(db, function (data) {
 
 
 
-    Object.keys(db.scripts).forEach(key => {
+    dbScripts && dbScripts.forEach((item, index) => {
+        let { name} = item
         let div = document.createElement("div")
         div.className = "script-wrapper"
 
         let html = `
-        ${key}
+        ${name}
     `
         div.innerHTML = html;
         div.addEventListener("click", function (event) {
@@ -113,7 +127,7 @@ chrome.storage.local.get(db, function (data) {
             }, tabs => {
                 tabs[0] && chrome.tabs.sendMessage(tabs[0].id, {
                     action: "inject-script",
-                    payload: key
+                    payload: index
                 })
             })
         })
@@ -126,7 +140,7 @@ chrome.storage.local.get(db, function (data) {
         btnEdit.addEventListener("click", function (event) {
             event.stopPropagation()
             console.log("edit clicked")
-            let url = chrome.extension.getURL("../html/option.html") + `#editscript=${key}`
+            let url = chrome.extension.getURL("/html/option.html") + `#editscript=${index}`
             // window.open(url)
             chrome.tabs.create({
                 url
@@ -142,11 +156,10 @@ chrome.storage.local.get(db, function (data) {
     */
     let btnAdd = document.createElement("BUTTON")
     btnAdd.className = "btn-add-script"
-    btnAdd.textContent = "Add script +"
+    btnAdd.textContent = "Add"
     btnAdd.addEventListener("click", function (event) {
         event.stopPropagation()
-        console.log("add clicked")
-        let url = chrome.extension.getURL("../html/option.html") + `#addscript`
+        let url = chrome.extension.getURL("/html/option.html") + `#addscript`
         // window.open(url)
         chrome.tabs.create({
             url
@@ -163,7 +176,7 @@ chrome.storage.local.get(db, function (data) {
         btnEdit.addEventListener("click", function (event) {
             event.stopPropagation()
             console.log("editcss clicked")
-            let url = chrome.extension.getURL("../html/option.html") + '#editcss'
+            let url = chrome.extension.getURL("/html/option.html") + '#editcss'
             // window.open(url)
             chrome.tabs.create({
                 url

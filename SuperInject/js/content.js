@@ -10,9 +10,9 @@ https://stackoverflow.com/questions/9515704/use-a-content-script-to-access-the-p
 // console.log("hi from SuperInject");
 
 let db = {
-    scripts: {},
-    cdns: {},
-    CSSs: []
+    dbScripts: [],
+    dbCdns: [],
+    dbCSSs: []
 }
 
 chrome.storage.local.get(db, function (data) {
@@ -109,17 +109,17 @@ function cdnExistes(src) {
 chrome.runtime.onMessage.addListener(function (message, messageSender, sendResponse) {
     chrome.storage.local.get(db, function (data) {
 
-        // console.log("receive mesasge:", message);
-        // console.log("updating database...");
 
         db = data
-        if (message.action == 'inject-cdn') {
-            let name = message.payload
-            console.log('do inject-cdn', name);
+        let { dbScripts, dbCSSs, dbCdns } = db;
 
-            db.cdns[name].forEach(link => {
-                console.log("cdn links:", link);
-                if (link.length > 0)
+        if (message.action == 'inject-cdn') {
+            let index = message.payload
+            let  cdn = dbCdns[index]
+            console.log('do inject-cdn', cdn.name);
+
+            cdn.cdns.forEach(link => {
+                if (link.length)
                     injectCDN(link)
                         .then(res => {
                             console.log(res)
@@ -129,27 +129,31 @@ chrome.runtime.onMessage.addListener(function (message, messageSender, sendRespo
                         })
             })
         } else if (message.action == 'inject-script') {
-            let key = message.payload
+            let index = message.payload
             let {
                 name,
-                cdn,
+                cdns,
                 script
-            } = db.scripts[key]
-            if (cdn.length > 0) {
+            } = dbScripts[index]
+            if (dbCdns.length > 0) {
                 console.log("injecting: " + name + " ...");
-
-
-                cdn.forEach(function (cdnName) {
-                    db.cdns[cdnName].forEach(link => {
-                        if (link.length > 0)
-                            injectCDN(link)
-                                .then(res => {
-                                    console.log(res)
-                                })
-                                .catch(err => {
-                                    console.log(err)
-                                })
-                    })
+                console.log(cdns)
+                l = cdns && cdns.length || 0
+                l && dbCdns.some((item) => {
+                    if (l && item.name === cdn[--l]) {
+                        item.cdns.forEach(link => {
+                            if (link)
+                                injectCDN(link)
+                                    .then(res => {
+                                        console.log(res)
+                                    })
+                                    .catch(err => {
+                                        console.log(err)
+                                    })
+                        })
+                    }
+                    if (l == 0)
+                        return true;
                 })
             }
 
@@ -185,9 +189,9 @@ add css
 chrome.storage.local.get(db, function (data) {
     // console.log("updating database...");
     // console.log(data);
-    
+
     db = data
-    let cssList = db.CSSs
+    let cssList = db.dbCSSs
     cssList.some(css => {
         if (css.match && new RegExp(css.match).test(window.location.href)) {
             injectCss(css.css)

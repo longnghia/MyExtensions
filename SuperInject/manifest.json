@@ -1,27 +1,38 @@
 {
-    "content_scripts": [{
-       "js":["./js/sweetalert2.all.min.js","./js/content.js"],
-       "matches":["*://*/*"],
-       "run_at":"document_idle"
-    }],
-    "browser_action": {
-       "default_icon": {
-          "128": "./icon/icons8-syringe-100.png"
-       },
-       "default_popup": "html/popup.html",
-       "default_title": "Injector"
-    },
-    "options_page":"./html/option.html",
-    "default_locale": "en",
-    "description": "An extension to inject userscript and cdn",
-    "icons": {
-       "128": "./icon/icons8-syringe-100.png"
-    },
-    "manifest_version": 2,
-    "name": "Super Injector",
-    "short_name":"Injector",
-    "homepage_url":"http://github./com/LongNghia/MyExtensions/SuperInject",
-    "permissions": [ "pageCapture", "tabs","storage" ,"unlimitedStorage", "*://*/*" ],
-    "version": "1.0.0"
- }
- 
+   "content_scripts": [{
+      "js": ["./js/sweetalert2.all.min.js", "./js/content.js"],
+      "matches": ["*://*/*"],
+      "run_at": "document_idle"
+   }],
+   "background": {
+      "page": "html/background.html"
+   },
+   "browser_action": {
+      "default_icon": {
+         "128": "./icon/icons8-syringe-100.png"
+      },
+      "default_popup": "html/popup.html",
+      "default_title": "Injector"
+   },
+   "options_page": "./html/option.html",
+   "default_locale": "en",
+   "description": "An extension to inject userscript and cdn",
+   "icons": {
+      "128": "./icon/icons8-syringe-100.png"
+   },
+   "manifest_version": 2,
+   "name": "Super Injector",
+   "short_name": "Injector",
+   "homepage_url": "http://github./com/LongNghia/MyExtensions/SuperInject",
+   "permissions": ["pageCapture", "tabs", "storage", "unlimitedStorage","identity", "*://*/*"],
+   "version": "1.0.0",
+   "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com https://apis.google.com; object-src 'self'",
+   "oauth2": {
+      "client_id": "94024781140-vijo396rldbib9kkm9t7v04c5f97q0kr.apps.googleusercontent.com",
+      "scopes": [ 
+         "https://www.googleapis.com/auth/userinfo.email",
+         "https://www.googleapis.com/auth/userinfo.profile"
+      ]
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsqqWh5aJhR1Q3Ba2pdGM/K31rb4uF72Pzg/KGKQ72TbeQIEeBu2OupFudDNayQgH4We1jDL5hiC4I83Tafmn6p/ouJJrE5bVmDX5MpD/TZXIiI3RRQ2ZaARoyHuKikakprLglzBu6epNCak56ZlYq9PGF8Dd+TlkCwxHknIw87dLcrS6UwJw4222QIkph0Q5hj4TVpvtoXYCys9PHxrH+P5rxVcBqQmINnbnpQ95F9GQxI7Us2BC143jba9oWgbsHstYJ/qMckXxZbIKyurUOCApPL3PkqF4IyxIUAiVLTHUnnYNnWEkIZC9oTr7Retvvg+M6RcD3wIlNZ4FJn3QOQIDAQAB"
+}

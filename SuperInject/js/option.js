@@ -1,40 +1,14 @@
-// let db = {
-//     scripts: {
-//         "pin_get": {
-//             name: "pin get",
-//             cdn: ["bootstrap", "jquery"],
-//             script: "function a(){console.log('hello from function a')}"
-//         },
-//         "portal": {
-//             name: "portal 123",
-//             cdn: ["jquery"],
-//             script: "console.log('dep trai qua')"
-//         }
-//     },
-//     cdns: {
-//         "bootstrap": [
-//             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css",
-//             "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"
-//         ],
-//         "jquery": ["https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"]
-//     },
-//     csss: {
-//         "https://viblo.asia": "h1{color:red}"
-//     }
-// }
-
-
 
 let db = {
-    scripts: {},
-    cdns: {},
-    CSSs: []
+    dbScripts: [],
+    dbCdns: [],
+    dbCSSs: []
 }
 
 let toast = document.getElementById("toast")
 let btnSave = document.getElementById("btn-save");
 document.getElementById("btn-add").click = function () {
-    let url = chrome.extension.getURL("../html/option.html") + `#addscript`
+    let url = chrome.extension.getURL("/html/option.html") + `#addscript`
     console.log("redirect to %s", url);
     chrome.tabs.update(undefined, {
         url
@@ -53,53 +27,47 @@ chrome.storage.local.get(db, function (data) {
      */
 
     let {
-        scripts,
-        cdns,
-        CSSs
+        dbScripts,
+        dbCdns,
+        dbCSSs
     } = db
 
     let href = location.href
     let command = href.split("#")[1] ? href.split("#")[1] : ''
     if (command.startsWith("editscript")) {
-        let key = command.split("=")[1]
-        document.querySelector("title").textContent = "Edit " + key
-        if (contain(scripts, key)) {
-            createLayout(scripts[key], cdns, false, "Modify Scripts")
-            // delete old script
+        let index = command.split("=")[1]
+        let script = dbScripts[index]
+        document.querySelector("title").textContent = "Edit " + script.name
 
-            btnSave.addEventListener("click", function (event) {
-                delete db.scripts[key]
-                console.log("modified " + key);
+        createEditorLayout(index, dbCdns, "Modify Scripts")
+
+        btnSave.textContent = "Modify"
+
+        //add remove btn
+        let btnRemove = document.createElement("button")
+        btnRemove.textContent = "Remove"
+        btnRemove.setAttribute("id", "btn-remove")
+        btnRemove.addEventListener("click", function (event) {
+
+            // db.dbScripts.splice(index,1);
+            console.log("remove script:", db.dbScripts.splice(index, 1));
+
+            chrome.storage.local.set(db, function () {
+                save2firebase()
+                showToast("Removed")
+                // redirect to add script page
+                let url = chrome.extension.getURL("/html/option.html") + `#addscript`
+                console.log("redirect to %s", url);
+                window.close()
+                chrome.tabs.create({
+                    url
+                }, function () { console.log("open new tab") });
             })
-            btnSave.textContent = "Modify"
-
-            //add remove btn
-            let btnRemove = document.createElement("button")
-            btnRemove.textContent = "Remove"
-            btnRemove.setAttribute("id", "btn-remove")
-            btnRemove.addEventListener("click", function (event) {
-                delete db.scripts[key]
-                console.log("removed", db);
-
-                chrome.storage.local.set(db, function () {
-                    setToast("Removed")
-                    // redirect to add script page
-                    let url = chrome.extension.getURL("../html/option.html") + `#addscript`
-                    console.log("redirect to %s", url);
-                    chrome.tabs.update(undefined, {
-                        url
-                    });
-                })
-            })
-            document.querySelector("div.div-modify").appendChild(btnRemove)
-        }
+        })
+        document.querySelector("div.div-modify").appendChild(btnRemove)
     } else if (command.startsWith("addscript")) {
-        let script = {
-            name: "",
-            cdn: [],
-            script: ""
-        }
-        createLayout(script, cdns, true, "Add Script")
+
+        createEditorLayout(-1, dbCdns, "Add Script")
 
     } else if (command.startsWith("editcdn")) {
         console.log('edit cdn');
@@ -110,8 +78,8 @@ chrome.storage.local.get(db, function (data) {
         div.className = "div-modify"
         let html = `
         <br>
-        <label for="textarea-cdn">Modifiy CDNs</label><br>
-        <textarea name="textarea-cdn" cols="100" rows="30">${js_beautify(JSON.stringify(cdns))}</textarea>
+        <label for="textarea-cdn">Modify CDNs</label><br>
+        <textarea name="textarea-cdn" cols="100" rows="30">${js_beautify(JSON.stringify(dbCdns))}</textarea>
         <br>
         `
         div.innerHTML = html
@@ -119,35 +87,37 @@ chrome.storage.local.get(db, function (data) {
         //save
         document.getElementById("btn-save").addEventListener("click", function (event) {
             try {
-                db.cdns = JSON.parse(document.querySelector("textarea").value)
+                db.dbCdns = JSON.parse(document.querySelector("textarea").value)
                 chrome.storage.local.set(db, function () {
-                    setToast("Saved")
+                    showToast("Saved")
+                    save2firebase()
                     console.log(db);
-
                 })
             } catch (e) {
-                setToast(e, 5000)
+                console.error("Cant not save: ", e)
+                showToast(e, "error")
             }
         })
 
     } else if (command.startsWith("editcss")) {
-        CSSs = CSSs ? CSSs : []
+        dbCSSs = dbCSSs ? dbCSSs : []
         document.querySelector("title").textContent = "Edit CSS"
         let div = document.createElement("div")
         div.className = "div-modify"
         let html = `
         <br>
-        <label for="textarea-cdn">Modifiy CSSs</label><br>
-        <textarea name="textarea-cdn" cols="100" rows="30">${js_beautify(JSON.stringify(CSSs))}</textarea>
+        <label for="textarea-cdn">Modify CSSs</label><br>
+        <textarea name="textarea-cdn" cols="100" rows="30">${js_beautify(JSON.stringify(dbCSSs))}</textarea>
         <br>
         `
         div.innerHTML = html
         document.getElementById("container").appendChild(div)
         //save
         document.getElementById("btn-save").addEventListener("click", function (event) {
-            db.CSSs = JSON.parse(document.querySelector("textarea").value)
+            db.dbCSSs = JSON.parse(document.querySelector("textarea").value)
             chrome.storage.local.set(db, function () {
-                setToast("Saved")
+                save2firebase()
+                showToast("Saved")
                 console.log(db);
 
             })
@@ -156,13 +126,32 @@ chrome.storage.local.get(db, function (data) {
     }
 })
 
+/* 
+shortcuts
+ctrl s: save
+*/
+window.addEventListener("keydown",
+    function (event) {
+        if (event.ctrlKey) {
+            switch (event.key) {
+                case 's':
+                    event.preventDefault();
+                    document.getElementById("btn-save").click()
+                    break;
+                default:
+                    return;
+            }
+        }
+    }, true
+);
+
 function isEmpty(obj) {
     return Object.keys(obj).length === 0;
 }
 
-function saveScript() {
+function saveScript(scriptIndex) {
 
-    let inputName = document.querySelector("#input-name").value
+    let inputName = document.querySelector("#input-name").value || ""
     let script = document.querySelector("textarea").value
     let checkBoxList = document.querySelectorAll("input[type='checkbox']")
 
@@ -173,29 +162,45 @@ function saveScript() {
     })
 
     if (inputName) {
-
+        if (scriptIndex==-1 && scriptExist(inputName)) {
+            showToast("Name existed!", "error")
+            return;
+        }
         let scriptObj = {
             name: inputName,
-            cdn: checkedList,
+            cdns: checkedList,
             script: script
         }
-        let newKey = createKey(inputName);
 
-        db.scripts[newKey] = scriptObj;
+        if (scriptIndex >= 0)
+            db.dbScripts[scriptIndex] = scriptObj;
+        else {
 
-        console.log("new", db);
+            db.dbScripts.push(scriptObj)
+            scriptIndex = db.dbScripts.length - 1
+        }
+
+
+        console.log("Saved script: ", db.dbScripts[scriptIndex], db);
 
         chrome.storage.local.set(db, function () {
-            setToast("Saved")
-            chrome.storage.local.get(db, function (data) {
-                db = data;
-            })
+            console.log("save to local then sync...");
+            showToast("Saved!")
+            save2firebase()
         })
+
+
     } else {
-        setToast("Invalid name", 5000)
+        showToast("Invalid name", "error")
     }
 
 }
+
+function scriptExist(inputName) {
+    return db.dbScripts.some(item =>
+        item.name == inputName)
+}
+
 
 function createKey(name = "") {
     return name.replace(" ", "_").trim()
@@ -210,31 +215,54 @@ function contain(obj, key) {
 }
 
 
-function setToast(value, time = 1500) {
-    document.getElementById("toast")
-    toast.textContent = value
-    setTimeout(function () {
-        toast.textContent = ""
-    }, time)
+function showToast(str = "Success", icon = "success", timer = 1500) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-start',
+        showConfirmButton: false,
+        timer: timer,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
+
+    Toast.fire({
+        icon: icon,
+        title: str
+    })
 }
 
-function createLayout(script, cdns, isNew, title) {
+function createEditorLayout(scriptIndex, dbCdns, title) {
+    let script
+    if (scriptIndex < 0)
+        script = {
+            name: "",
+            cdns: [],
+            script: ""
+        }
+    else{
+        script = db.dbScripts[scriptIndex];
+    }
+
+    console.log(script);
+    
+    let cdns = script.cdns
+    l = cdns && cdns.length || 0
     let listcdn = ""
-    Object.keys(cdns).forEach(function (key) {
-        if (script.cdn.indexOf(key) != -1) {
-            listcdn += `
-            <div class="div-cdn">
-            <input type="checkbox" name="${key}" checked>
-            <label for="${key}">${key}</label>
-            </div>
-    `
-        } else
-            listcdn += `
-            <div class="div-cdn">
-            <input type="checkbox" name="${key}"><label for="${key}">${key}</label>
-            </div>
-            `
+    dbCdns.forEach((item) => {
+        let checked = ""
+        if (l>0 && item.name === cdns[--l]) {
+            checked = "checked"
+        }
+        listcdn += `
+        <div class="div-cdn">
+        <input type="checkbox" name="${item.name}" ${checked}>
+        <label for="${item.name}">${item.name}</label>
+        </div>`
     })
+
 
     let div = document.createElement("div")
     div.className = "div-modify"
@@ -244,7 +272,7 @@ function createLayout(script, cdns, isNew, title) {
     <input type="text" name="input-name" id="input-name" size="30" value="${script.name}""><br>
     <br>
     <label for="cars">Required CDN:</label>
-    <div id="div-cdns">
+    <div id="div-dbCdns">
     ${listcdn}
     </div>
     <label for="ta-script">Scripts</label><br>
@@ -255,6 +283,14 @@ function createLayout(script, cdns, isNew, title) {
     document.getElementById("container").appendChild(div)
     //save
     document.getElementById("btn-save").addEventListener("click", function (event) {
-        saveScript()
+        saveScript(scriptIndex)
+    })
+}
+
+function save2firebase(){
+    chrome.runtime.sendMessage({
+        action: 'SAVE_DB',
+    }, function(res){
+        console.log(res);
     })
 }

@@ -1,3 +1,7 @@
+body{
+    width: 400px;
+}
+
 li:hover {
     background-color: #bbb;
     cursor: pointer;
@@ -54,4 +58,8 @@ li {
 .tool-bar-section.selected {
     cursor: pointer;
     background-color: #bbb;
+}
+
+.hidden{
+    display: none;
 }
