@@ -492,9 +492,14 @@ function setToast(text, timeout = 2500) {
 }
 
 function saveJSON() {
-    chrome.runtime.sendMessage({
-        action: 'export-json'
-    })
+    try {
+
+        chrome.runtime.sendMessage({
+            action: 'export-json'
+        })
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 function importJSON() {

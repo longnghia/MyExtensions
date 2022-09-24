@@ -31,7 +31,8 @@ db = {
  */
 
 var db = {
-    articles: []
+    articles: [],
+    groups: []
 }
 
 var articleSample = {
@@ -76,13 +77,20 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
+var refPath;
+var uid;
 
 // Auth
 const auth = app.auth();
 var provider = new firebase.auth.GoogleAuthProvider()
 auth.onAuthStateChanged(user => {
     if (user) {
-        console.log('logged in as %c' + user.email, 'color:red', user);
+        console.log('logged in as %c' + user.email, 'color:red', {user});
+        uid = user.uid;
+        refPath = "read-later-db/" + uid;
+        console.log("[auth] refPath=%c"+refPath,'color:#e91e63');
+        console.info("init data ....");
+        initData();
     } else {
         console.log('logged out');
         manualAuthenticate()
@@ -109,136 +117,98 @@ function manualAuthenticate() {
     });
 
 }
-function authenticate() {
-    firebase.auth()
-        .signInWithPopup(provider)
-        .then((result) => {
-            console.log('success!!!');
-
-            // This gives you a Google Access Token. You can use it to access the Google API.
-            const credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-            console.log(credential);
-
-            // const token = credential.accessToken;
-            // The signed-in user info.
-            const user = result.user;
-            // ...
-        }).catch((error) => {
-
-            // Handle Errors here.
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // The email of the user's account used.
-            const email = error.email;
-            console.log('error!!!', error);
-
-            // The AuthCredential type that was used.
-            const credential = firebase.auth.GoogleAuthProvider.credentialFromError(error);
-            // ...
-        });
-}
-function logOut() {
-    firebase.auth().signOut().then(() => {
-        // Sign-out successful.
-        console.log('Signed out!');
-
-    }).catch((error) => {
-        // An error happened.
-        console.error('Error!!!', err)
-    });
-}
-
-
 
 // read data
-if (useFirebase) {
-    console.info('use firebase, reading db...')
-    const database = firebase.database();
+function initData() {
+    if (useFirebase) {
+        console.info('use firebase, reading db...')
+        const database = firebase.database();
 
-    database.ref('read-later')
-        .once('value')
-        .then((snapshot) => {
-            const val = snapshot.val();
-            if (val) {
-                db = val
-                console.log('[init]', db)
-                chrome.browserAction.setBadgeText({
-                    text: db?.articles?.length ? '' + db.articles.length : '0'
-                })
+        database.ref(refPath)
+            .once('value')
+            .then((snapshot) => {
+                const val = snapshot.val();
+                if (val) {
+                    db = val
+                    console.log('[init]', db)
+                    chrome.browserAction.setBadgeText({
+                        text: db?.articles?.length ? '' + db.articles.length : '0'
+                    })
 
-                chrome.storage.local.getBytesInUse(null, bytes => {
-                    if (!bytes) {
-                        console.log('[once data]');
-                        firebase2local(db)
-                    } else {
-                        db = {
-                            articles: []
+                    // if storage.local null then firebase2local
+                    chrome.storage.local.getBytesInUse(null, bytes => {
+                        if (!bytes) {
+                            console.log('[once data] local NULL, firebase2local');
+                            firebase2local(db)
                         }
+                    });
+                } else {
+                    console.log("[initData] firebase NULL, set default db");
+                    
+                    db = {
+                        articles: [],
+                        groups: []
                     }
-                });
-            } else {
-                db = {
-                    articles: []
                 }
-            }
-            database.ref('read-later')
-                .on('value', (snapshot) => {
-                    const val = snapshot.val();
-                    if (val) {
-                        db = val
-                    }
-                    if (db) firebase2local(db)
-                })
+                database.ref(refPath)
+                    .on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        if (val) {
+                            db = val
+                        }
+                        // if (db) firebase2local(db)
+                    })
 
-            chrome.storage.onChanged.addListener(function (changes) {
-                console.log("[storage change]", changes);
+                chrome.storage.onChanged.addListener(function (changes) {
+                    console.log("[storage change]", changes);
+                    chrome.storage.local.get(null, function (data) {
+                        if (data) {
+                            db = data;
+                            local2firebase()
+                            chrome.browserAction.setBadgeText({
+                                text: db?.articles?.length ? '' + db.articles.length : '0'
+                            })
+                        }
+                    })
+                });
 
+            })
+            .catch((e) => {
+                console.log('Error fetching data', e);
+                console.log('fetching from storage.local...');
                 chrome.storage.local.get(null, function (data) {
                     if (data) {
                         db = data;
-                        chrome.browserAction.setBadgeText({
-                            text: db?.articles?.length ? '' + db.articles.length : '0'
-                        })
+                        console.log("inital database", db);
                     }
                 })
+            })
+            .finally(() => {
+                console.log('[set commands]');
+                setCommands()
             });
 
-        })
-        .catch((e) => {
-            console.log('Error fetching data', e);
-            console.log('fetching from storage.local...');
-            chrome.storage.local.get(null, function (data) {
-                if (data) {
-                    db = data;
-                    console.log("inital database", db);
-                }
-            })
-        })
-        .finally(() => {
-            console.log('[set commands]');
+    } else {
+        console.info('use chrome.storage, reading db...')
+
+        chrome.storage.local.get(db, function (data) {
+            if (data && data.articles) {
+                console.log("inital database", data);
+                db = data;
+            }
+            /*
+         Command stuffs 
+         set in initial setup --> not rewrite database (lost all)
+         */
+
             setCommands()
-        });
-
-} else {
-    console.info('use chrome.storage, reading db...')
-
-    chrome.storage.local.get(db, function (data) {
-        if (data && data.articles) {
-            console.log("inital database", data);
-            db = data;
-        }
-        /*
-     Command stuffs 
-     set in initial setup --> not rewrite database (lost all)
-     */
-
-        setCommands()
-    })
+        })
+    }
 }
 
 
-
 chrome.extension.onMessage.addListener(function (message, messageSender, sendResponse) {
+    console.log("[onMessage] Received:", message);
     switch (message.action) {
         case "add-all":
             queryTab(queryTabOptions.allTabs, saveArticles, sendResponse)
@@ -250,11 +220,10 @@ chrome.extension.onMessage.addListener(function (message, messageSender, sendRes
             queryTab(queryTabOptions.highlightedTab, saveArticles, sendResponse)
             break;
         case "remove":
-            console.log('received remove message');
             let index = parseInt(message.index)
             let deletedItem = db.articles.splice(index, 1)
             chrome.storage.local.set(db, function () {
-                console.log("removed :" + index, deletedItem[0].title, deletedItem[0]);
+                console.log("[Storage] removed :" + index, deletedItem[0].title, deletedItem[0]);
                 sendResponse({
                     removedItem: deletedItem[0]
                 })
@@ -262,25 +231,28 @@ chrome.extension.onMessage.addListener(function (message, messageSender, sendRes
             break
         case 'badge-exist':
             setBadge('1')
-            return true;
+            return true; // no sync so return.
         case 'save-firebase':
             local2firebase()
-            break;
+            return true;
         case 'export-json':
             save2Json()
-            break;
+            return true;
         case 'save-mhtml':
             saveMHTML()
-            break;
+            return true;
+
         case 'save-tabs':
             saveTabs()
-            break;
+            return true;
         case 'save-groups':
             saveGroups(message.groups, sendResponse)
             break;
         case 'save-import-data':
             if (useFirebase) {
                 local2firebase()
+                return true;
+
             }
             break;
 
@@ -290,7 +262,7 @@ chrome.extension.onMessage.addListener(function (message, messageSender, sendRes
     }
 
     // save to firebase after each action finished
-    local2firebase()
+    // local2firebase()
     return true;
 });
 
@@ -307,6 +279,7 @@ function setCommands() {
     chrome.commands.onCommand.addListener((command) => {
         if (command == "save-this-tab") {
             queryTab(queryTabOptions.activeTab, saveArticles)
+
             chrome.browserAction.setIcon({
                 path: "../icon/icons8-reading-100-hotkey.png"
             });
@@ -328,7 +301,7 @@ function setCommands() {
 
 function queryTab(option, callback, sendResponse) {
     chrome.tabs.query(option, function (tabs) {
-        console.log('got  tabs', tabs);
+        console.log('[queryTab] got tabs', tabs);
         if (callback) {
             callback(tabs)
         }
@@ -336,7 +309,7 @@ function queryTab(option, callback, sendResponse) {
         if (sendResponse) {
             let response = [];
             tabs.forEach(tab => {
-                let obj = getArticle(tab)
+                let obj = getArticle(tab, false)
                 response.push(obj)
             })
             sendResponse(response)
@@ -358,8 +331,8 @@ function saveArticles(tabs) {
                     audioError.play()
                 } else {
                     audioSuccess.play()
-                    console.log("saved ", db)
-                    local2firebase()
+                    console.log("[saveArticles] saved to local", db)
+                    // local2firebase()
                 }
             });
         }
@@ -372,14 +345,14 @@ function saveArticles(tabs) {
             }
         })
         chrome.storage.local.set(db, function () {
-            console.log("saved ", db)
 
             if (chrome.runtime.lastError) {
                 //on false
+                console.log("[saveArticles] failed to save ", db)
                 audioError.play()
             } else {
                 audioSuccess.play()
-                console.log("saved ", db)
+                console.log("[saveArticles] saved to local ", db)
             }
         });
     }
@@ -392,7 +365,7 @@ function saveArticles(tabs) {
 /* 
 return {icon, title, url, host}
 */
-function getArticle(tab) {
+function getArticle(tab, log = true) {
     if (tab) {
         if (!tab.url ||
             tab.url.startsWith("chrome://") ||
@@ -417,7 +390,7 @@ function getArticle(tab) {
         //     })
         // }
 
-        console.log(obj);
+        log && console.log("[getArticle]", obj);
         return obj
     }
     return null;
@@ -466,13 +439,21 @@ function firebase2local(newDb) {
     console.log("[firebase2local] starting...");
 
     if (newDb && typeof (newDb) == 'object' && JSON.stringify(newDb) !== '{}')
-        chrome.storage.local.clear(function () {
-            chrome.storage.local.set(newDb,
-                function () {
-                    console.log("[firebase2local] success");
-                }
-            );
-        })
+        // chrome.storage.local.clear(function () {
+        //     console.log("[firebase2local] local storage deleted.")
+        //     chrome.storage.local.set(newDb,
+        //         function () {
+        //             console.log("[firebase2local] set local storage success");
+        //         }
+        //     );
+        // })
+
+        // array data so no need to delete local.
+        chrome.storage.local.set(newDb,
+            function () {
+                console.log("[firebase2local] set local storage success");
+            }
+        );
     else {
         console.log('[firebase2local] invalid database!', newDb);
         db = {
@@ -484,14 +465,21 @@ function firebase2local(newDb) {
 function local2firebase() {
     console.log('[local2firebase] starting...');
 
-    chrome.storage.local.get(null, function (data) {
-        data && database.ref('read-later').set(data)
-            .then(() => {
-                console.log('[local2firebase] Data is saved!', data);
-            }).catch((e) => {
-                console.log('[local2firebase] failed.', e);
-            });
-    })
+    // chrome.storage.local.get(null, function (data) {
+    //     data && database.ref(refPath).set(data)
+    //         .then(() => {
+    //             console.log('[local2firebase] Data is saved!', data);
+    //         }).catch((e) => {
+    //             console.log('[local2firebase] Save failed!', e);
+    //         });
+    // })
+
+    db && database.ref(refPath).set(db)
+        .then(() => {
+            console.log('[local2firebase] Data is saved!', db);
+        }).catch((e) => {
+            console.log('[local2firebase] Save failed!', e);
+        });
 }
 
 function setBadge(text) {
@@ -518,7 +506,7 @@ function save2Json() {
         // })
         const link = document.createElement('a');
         link.href = url
-        link.download = 'read_later_' + new Date().toDateString().replaceAll(' ', '_') + '.json'
+        link.download = 'read_later_'+uid+'_' + new Date().toDateString().replaceAll(' ', '_') + '.json'
         link.click();
     })
 }
@@ -526,8 +514,12 @@ function save2Json() {
 function saveMHTML() {
     chrome.tabs.query({
         active: true,
-        currentWindow: true
+        // currentWindow: true
     }, function (tabs) {
+        if (!tabs) {
+            console.error("[saveMHTML] tabs null")
+            return;
+        }
         let tab = tabs[0]
         chrome.pageCapture.saveAsMHTML({
             tabId: tab.id
@@ -541,10 +533,9 @@ function saveMHTML() {
     })
 }
 
+
 function saveTabs() {
-    chrome.tabs.query({
-        currentWindow: true
-    }, function (tabs) {
+    chrome.tabs.query(queryTabOptions.allTabs, function (tabs) {
         let res = tabs.reduce((pre, tab) => {
             pre.push({ 'title': tab.title, 'url': tab.url })
             return pre

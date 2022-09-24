@@ -219,7 +219,7 @@ function updateFinalGroups() {
         finalGroups.textContent = js_beautify(JSON.stringify(tempGroups), beautifyConfig)
     } catch (e) {
         console.error(e)
-        showToast('FAIL!!!', 'error', false)
+        showToast('FAIL!!! '+e, 'error', false)
 
     }
 }
@@ -273,7 +273,7 @@ function showToast(msg = 'Success!!', icon = 'success', toast = true) {
     })
 
     Toast.fire({
-        icon: 'success',
+        icon: icon, 
         title: msg
     })
 }
